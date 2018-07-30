@@ -1,0 +1,33 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+.dashboard {
+}
+
+.dashboard > .card-container {
+  padding: 10px;
+  background-color: rgba(0, 0, 0, .05);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr 1fr;
+  grid-gap: 10px;
+}
+
+.dashboard > .head {
+  border-radius: 5px 5px 0 0;
+  background-color: rgba(0, 0, 0, .1);
+  margin-top: 20px;
+}
+
+.form-row > div {
+  margin: 5px;
+}
+
+.dash-form .submit-img {
+  float: right;
+  margin-top: 5px;
+  height: 30px;
+}
