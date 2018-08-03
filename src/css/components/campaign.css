@@ -1,0 +1,7 @@
+.campaign > .settings.open {
+    
+}
+
+.campaign > .settings.closed {
+    display: none;
+}
