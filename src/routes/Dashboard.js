@@ -1,5 +1,5 @@
 import React from 'react';
-import Modal from 'react-modal';
+import Axios from 'axios'
 
 import Layout from '../Layout';
 import CardAdder from '../components/CardAdder';
@@ -51,7 +51,27 @@ console.log(campaigns);
 export default class Dashboard extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {campaigns};
+        this.state = {
+            interval: setInterval(() => this.check(), 5000),
+            changed: false,
+            campaigns
+        };
+    }
+
+    check() {
+        if(this.state.changed) this.updateApi();
+    }
+
+    updateApi() {
+        Axios.post('/', this.state.campaings)
+            .then(() => {
+                console.log('Successfully updated.');
+                this.set(state => state.changed = false);
+            })
+            .catch(err => {
+                console.log('There was a problem connecting to the server.' + err);
+                clearInterval(this.state.interval);
+            });
     }
 
     getCampaign(id) {
@@ -75,36 +95,42 @@ export default class Dashboard extends React.Component {
     }
 
     toggle(id) {
-        this.set(id, c => {
+        this.setCampaign(id, c => {
             c.on = !c.on;
             return c;
         }); 
     }
 
     toggleSettings(id) {
-        this.set(id, (c) => {
+        this.setCampaign(id, (c) => {
             c.isOpen = !c.isOpen;
             return c;
         });
     }
 
-    set(id, callback) {
-        let i = this.getIndex(id);
-        let campaigns = this.state.campaigns;
-        if(!(campaigns[i] = callback(campaigns[i]))) campaigns.splice(i, 1);
-        this.setState({
-            ...this.state, 
-            campaigns
+    set(callback) {
+        let state = callback(this.state);
+        state.changed = true;
+        return new Promise(resolve => {
+            this.setState(state, resolve())
         });
+    }
 
+    setCampaign(id, callback) {
+        this.set(state => {
+            let i = this.getIndex(id);
+            let campaigns = state.campaigns;
+            if(!(campaigns[i] = callback(campaigns[i]))) campaigns.splice(i, 1);
+            return state;
+        });
     }
 
     removeCampaign(id) {
-        this.set(id, (c) => c = null);
+        this.setCampaign(id, (c) => c = null);
     }
 
     update(id, k, v) {
-        this.set(id, c => {
+        this.setCampaign(id, c => {
             c[k] = v;
             return c;
         });

@@ -1,11 +1,19 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import { BrowserRouter, Switch, Route } from 'react-router-dom'
 import Dashboard from './routes/Dashboard';
+import Register from './routes/Register';
+import Login from './routes/Login';
 
 class App extends Component {
   render() {
     return (
-      <Dashboard/>
+      <BrowserRouter>
+        <Switch>
+          <Route exact path="/" component={Dashboard}/>
+          <Route exact path="/register" component={Register}/>
+          <Route exact path="/login" component={Login}/>
+        </Switch>
+      </BrowserRouter>
     );
   }
 }
