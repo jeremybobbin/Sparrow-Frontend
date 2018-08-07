@@ -2,6 +2,7 @@ import React from 'react';
 import Axios from 'axios';
 import Layout from '../Layout';
 
+import RegisterButton from '../components/RegisterButton';
 import Input from '../components/Input';
 
 let inputsArr = [
@@ -50,21 +51,6 @@ export default class Register extends React.Component {
         });
     }
 
-    submit() {
-        if(this.call()) {
-
-        } else {
-            this.set(s => {
-                s.message = 'Username/Password is incorrect.';
-                return s;
-            });
-        }
-    }
-
-    call() {
-        return false;
-    }
-
 
 
     render() {
@@ -85,7 +71,12 @@ export default class Register extends React.Component {
                         );
                     })
                 }
-                <button onClick={() => this.submit()}>Register</button>
+                <RegisterButton
+                    email={this.state.email}
+                    password={this.state.password}
+                    first={this.state.first}
+                    last={this.state.last}
+                />
             </Layout>
         ); 
     }

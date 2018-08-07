@@ -1,6 +1,5 @@
 import React from 'react';
 
-
 const Input = props => 
     props.label ?
     <label htmlFor={props.id || props.name}>{props.label}

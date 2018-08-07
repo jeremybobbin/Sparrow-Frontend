@@ -2,7 +2,10 @@ import React from 'react';
 import Axios from 'axios';
 import Layout from '../Layout';
 
+import LogButton from '../components/LogButton';
+import Dao from '../components/Dao';
 import Input from '../components/Input';
+
 
 export default class Login extends React.Component {
     constructor(props) {
@@ -29,19 +32,8 @@ export default class Login extends React.Component {
         });
     }
 
-    submit() {
-        if(this.call()) {
-
-        } else {
-            this.set(s => {
-                s.message = 'Email/Password is incorrect.';
-                return s;
-            });
-        }
-    }
-
-    call() {
-        return false;
+    contextChange(c) {
+        console.log('The context has changed.');
     }
 
 
@@ -65,7 +57,10 @@ export default class Login extends React.Component {
                     value={this.state.password}
                     onChange={(e) => this.update(e) }
                 />
-                <button onClick={() => this.submit()}>Submit</button>
+                <LogButton
+                    email={this.state.email}
+                    password={this.state.password}
+                />
             </Layout>
         ); 
     }

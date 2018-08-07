@@ -1,8 +1,11 @@
 import React from 'react';
 import {NavLink} from 'react-router-dom';
+
 import Hamburger from './Hamburger';
+import LogButton from './LogButton';
+import Username from './Username';
+
 import '../css/components/navbar.css';
-import { resolve } from 'path';
 
 
 
@@ -31,11 +34,12 @@ export default class Navbar extends React.Component {
         return (
             <nav>
                 <Hamburger onClick={() => this.toggle()}/>
+                <Username />
                 <div className={this.state.class}>
                     <ul>
                         <li><NavLink exact to="/">Dashboard</NavLink></li>
-                        <li><NavLink exact to="/login">Login</NavLink></li>
                         <li><NavLink exact to="/register">Register</NavLink></li>
+                        <li><LogButton /></li>
                     </ul>
                 </div>
             </nav>

@@ -45,17 +45,21 @@ const campaigns = [
 ];
 
 campaigns.forEach(c => c.isOpen = false);
-console.log(campaigns);
-
 
 export default class Dashboard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            interval: setInterval(() => this.check(), 5000),
             changed: false,
             campaigns
         };
+    }
+
+    componentDidMount() {
+        this.setState({
+            ...this.state,
+            interval: setInterval(() => this.check(), 5000)
+        });
     }
 
     check() {
