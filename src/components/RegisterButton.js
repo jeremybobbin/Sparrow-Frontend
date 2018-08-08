@@ -7,7 +7,7 @@ const Register = props =>
         {(context) => (
             <React.Fragment>
                 <button 
-                    className={props.className}
+                    className={`props.className ${context.state.loggedIn ? 'hidden' : ''}`}
                     onClick={(e) => {
                         if(context.state.loggedIn) context.logOut();
                         context.register(props.email, props.password, props.first, props.last);

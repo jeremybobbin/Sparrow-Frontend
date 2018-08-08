@@ -23,7 +23,6 @@ export default class Provider extends React.Component {
     logIn(email, password) {
         return Axios.post('http://localhost:3001/login', {email, password})
             .then(r => {
-                console.log(r);
                 if(r.error) {
                     this.set(s => {
                         s.message = r.data.message;
@@ -37,13 +36,16 @@ export default class Provider extends React.Component {
                         return s;
                     });
                 }
-            });
+            })
+            .catch(() => this.set(s => {
+                s.message = 'Cannot connect to server. Please try again later.';
+                return s;
+            }))
     }
 
     register(email, password, first, last) {
         Axios.post('http://localhost:3001/register', { first, last, email, password })
             .then(r => {
-                console.log(r);
                 if(r.data.error) {
                     this.set(s => {
                         s.message = r.data.message;
