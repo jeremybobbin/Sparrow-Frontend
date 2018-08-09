@@ -2,61 +2,60 @@ import React from 'react';
 
 import Consumer from './Consumer';
 import Input from './Input';
+import { timingSafeEqual } from 'crypto';
 
 export default class Form extends React.Component {
     constructor(props) {
         super(props);
-        this.values = {};
+        const values = {};
+        console.log(props.inputs);
         props.inputs.forEach(input => {
-            this.values[input.id] = '';
+            values[input.id] = '';
         });
-        this.state = this.values;
-
+        this.state = values;
 
         this.inputs = props.inputs.map((obj, i) => {
-            this.values[obj.id] = '';
             return (
                 <Input
                     key={i}
                     label={obj.label}
                     name={obj.id}
                     type={obj.type || null}
-                    value={this.state[obj.id]}
+                    value={this.state[(() => obj.id)]}
                     onChange={(e) => this.update(e) }
                 />
             );
         });
-        this.props = props;
-        console.log(this.state);
     }
 
-    set(callback) {
-        return new Promise(resolve => {
-            let res = callback(this.state);
-            console.log('Result from callback: ');
-            console.log(res);
-            this.setState(res);
-        });
-    }
-
+    set = callback => new Promise(
+        resolve => this.setState(callback(this.state), (s) => resolve)
+    );
     
     update(e) {
-        console.log('Name: ' + e.target.name);
-        console.log('Value: ' + e.target.value);
+        const {name, value} = e.target;
         this.set(s => {
-            s[e.target.name] = e.target.value;
+            s[name] = value;
             return s;
-        });
+        }).then(res => console.log(res))
+    }
+
+    handle(e, c) {
+        e.preventDefault();
+        let args = [];
+        for(let prop in this.state) {
+            args.push(this.state[prop]);
+        }
+        console.log(args);
+        ((a, b) => console.log(a + ' | ' + b))(...args);
+        c[this.props.func](...args);
     }
 
     render() {
         return (
             <Consumer>
-                {context => (
-                    <form onSubmit={(e) => {
-                        e.preventDefault();
-                        context[this.props.func](...this.props.args);
-                    }}>
+                {c => (
+                    <form onSubmit={(e) => this.handle(e, c)}>
                         {this.inputs}
                         <button type='submit'>{this.props.buttonText}</button>
                     </form>

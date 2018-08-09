@@ -12,8 +12,8 @@ const Login = props =>
             func='logIn'
             inputs={[
                 {
-                    label: 'Email: ',
-                    id: 'email'
+                    label: 'Username: ',
+                    id: 'username'
                 },
                 {
                     label: 'Password: ',

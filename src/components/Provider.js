@@ -1,7 +1,10 @@
 import Axios from 'axios';
 import React from 'react';
+import Cookies from 'universal-cookie';
 
 import Context from './Context';
+
+const cookies = new Cookies();
 
 export default class Provider extends React.Component {
     
@@ -23,9 +26,10 @@ export default class Provider extends React.Component {
     logIn(email, password) {
         return Axios.post('http://localhost:3001/login', {email, password})
             .then(r => {
-                if(r.error) {
+                let { error, message } = r.data;
+                if(error) {
                     this.set(s => {
-                        s.message = r.data.message;
+                        s.message = typeof message === 'string' ? message : 'An unknown error has occured.';
                         return s;
                     });
                 } else {
