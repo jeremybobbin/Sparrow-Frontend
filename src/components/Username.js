@@ -5,8 +5,8 @@ import Context from './Context';
 const Username = props =>
     <Context.Consumer>
         {(c) => (
-            c.state.first ?
-                <p>{c.state.first}</p>
+            c.state.username ?
+                <p>{c.state.username}</p>
                 :
                 <p className='hidden'></p>
         )}

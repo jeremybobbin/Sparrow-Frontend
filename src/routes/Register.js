@@ -6,27 +6,6 @@ import RegisterButton from '../components/RegisterButton';
 import Input from '../components/Input';
 import Form from '../components/Form';
 
-let inputs = [
-    {
-        label: 'First Name: ',
-        id: 'first'
-    },
-    {
-        label: 'Last Name: ',
-        id: 'last'
-    },
-    {
-        label: 'Email: ',
-        id: 'email',
-        type: 'email'
-    },
-    {
-        label: 'Password: ',
-        id: 'password',
-        type: 'password',
-    },
-];
-
 export default class Register extends React.Component {
     constructor(props) {
         super(props);
@@ -59,9 +38,23 @@ export default class Register extends React.Component {
             <Layout>
                 <Form
                     func='register'
-                    args={[this.state.email, this.state.password, this.state.first, this.state.last]}
                     buttonText='Register'
-                    inputs={inputs}
+                    inputs={[
+                        {
+                            label: 'Username: ',
+                            id: 'username'
+                        },
+                        {
+                            label: 'Email: ',
+                            id: 'email',
+                            type: 'email'
+                        },
+                        {
+                            label: 'Password: ',
+                            id: 'password',
+                            type: 'password',
+                        },
+                    ]}
                 >
                 </Form>
             </Layout>
