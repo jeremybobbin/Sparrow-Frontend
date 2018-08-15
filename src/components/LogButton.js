@@ -8,7 +8,7 @@ const LogButton = props =>
         {(context) => (
             <React.Fragment>
                 <Route render={({ history }) => (
-                    <button 
+                    <a 
                         className={props.className}
                         onClick={(e) => {
                             if(context.state.loggedIn) context.logOut();
@@ -17,7 +17,7 @@ const LogButton = props =>
                         }}
                     >
                         {context.state.loggedIn ? 'Log Out' : 'Log In'}
-                    </button>
+                    </a>
                 )} />
             </React.Fragment>
         )}

@@ -1,9 +1,45 @@
 import React from 'react';
-import Axios from 'axios'
+import Axios from 'axios';
+import Cookies from 'universal-cookie';
 
+import jeRequest from '../models/jeRequest';
 import Layout from '../Layout';
 import CardAdder from '../components/CardAdder';
 import CampaignList from '../components/CampaignList';
+
+const cookies = new Cookies();
+
+function getCookies() {
+    let session = cookies.get('session');
+    let token = cookies.get('token');
+    if(session && token) return {
+        'Session': session,
+        'X-CSRF-Token': token
+    }
+    else return {};
+}
+
+const request = (method, data) => {
+    // let options = {
+    //     method,
+    //     headers: getCookies(),
+    //     url: 'http://localhost:3001/campaigns'
+    // };
+    // console.log(options);
+    // return Axios(options);
+    return jeRequest[method](null, data, getCookies());
+}
+
+const get = () => {
+    return request('get')
+}
+
+const put = (campaign) => request('put', campaign);
+
+const post = (campaigns) => request('post', campaigns);
+
+const del = (ids) => request('delete', ids);
+
 
 const campaigns = [
     {
@@ -11,8 +47,9 @@ const campaigns = [
         name: 'RTO',
         url: 'www.google.com',
         leads: 501,
-        on: true,
-        placement: 1,
+        enabled: true,
+        tracking: true,
+        location: 1,
         message: 'Has just signed up for XYZ'
     },
     {
@@ -20,8 +57,9 @@ const campaigns = [
         name: 'HOPE',
         url: 'www.example.com',
         leads: 6593,
-        on: false,
-        placement: 0,
+        enabled: true,
+        tracking: true,
+        location: 0,
         message: 'Has just signed up for XYZ'
     },
     {
@@ -29,8 +67,9 @@ const campaigns = [
         name: 'Google',
         url: 'www.wiki.org',
         leads: 4,
-        on: true,
-        placement: 2,
+        enabled: true,
+        tracking: true,
+        location: 2,
         message: 'Has just signed up for XYZ'
     },
     {
@@ -38,8 +77,9 @@ const campaigns = [
         name: 'Google',
         url: 'www.wiki.org',
         leads: 4,
-        on: true,
-        placement: 3,
+        enabled: true,
+        tracking: true,
+        location: 3,
         message: 'Has just signed up for XYZ'
     },
 ];
@@ -56,10 +96,12 @@ export default class Dashboard extends React.Component {
     }
 
     componentDidMount() {
-        this.setState({
-            ...this.state,
-            interval: setInterval(() => this.check(), 5000)
-        });
+        get().then(r => console.log(r)); 
+            // this.set(s => {
+            //     s.campaigns = r;
+            //     s.interval = setInterval(() => this.check(), 5000)
+            //     return s;
+            // })).catch(r => console.log(r));
     }
 
     check() {
@@ -94,13 +136,12 @@ export default class Dashboard extends React.Component {
             id: (Math.random() * 1000),
             leads: 0
         });
-        console.log(campaigns);
         this.setState({ campaigns });
     }
 
     toggle(id) {
         this.setCampaign(id, c => {
-            c.on = !c.on;
+            c.enabled = !c.enabled;
             return c;
         }); 
     }

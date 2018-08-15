@@ -11,13 +11,11 @@ function getSession() {
 }
 
 function clearCookies() {
-    console.log('CLEARING COOKIES');
     cookies.remove('session');
     cookies.remove('token');
 }
 
 function setSession(session) {
-    console.log('SETTING SESSION: ' + session);
     if(session === undefined || session === null) throw 'This shit\'s broke.';
     cookies.set('session', session);
 }
@@ -27,14 +25,27 @@ function sessionIsSet() {
 }
 
 function setToken(token) {
-    console.log('SETTING TOKEN: ' + token);
     cookies.set('token', token);
 }
 
 function getToken() {
     let value = cookies.get('token');
-    console.log('TOKEN: ' + value);
     return value;
+}
+
+function getCookies() {
+    let session = cookies.get('session');
+    let token = cookies.get('token');
+    if(session && token) return {
+        'Session': session,
+        'X-CSRF-Token': token
+    }
+    else return {};
+}
+
+function request(path = '', body = {}, headers = {}) {
+    headers = Object.assign(getCookies(), headers);
+    return Axios.post('http://localhost:3001/' + path, body, {headers});
 }
 
 export default class Provider extends React.Component {
@@ -54,13 +65,8 @@ export default class Provider extends React.Component {
 
     componentWillMount() {
         if(sessionIsSet()) {
-            let token = getToken();
-            let session = getSession();
-            console.log('TOKEN: ' + token);
-            console.log('SESSION: ' + session);
-            Axios.post('http://localhost:3001/userinfo', {session, token})
+            request('userinfo')
                 .then(r => {
-                    console.log(r);
                     let {username, email} = r.data;
                     this.set(s => {
                         s.username = username;
@@ -74,7 +80,7 @@ export default class Provider extends React.Component {
     }
     
     logIn(username, password) {
-        return Axios.post('http://localhost:3001/login', {username, password})
+        return request('login', {username, password})
             .then(r => {
                 let { session, email, message, token } = r.data;
                 if(r.data.message) {
@@ -97,16 +103,14 @@ export default class Provider extends React.Component {
                 }
             })
             .catch(r => this.set(s => {
-                console.log(r);
                 s.message = 'Cannot connect to server. Please try again later.';
                 return s;
             }))
     }
 
     register(username, email, password) {
-        Axios.post('http://localhost:3001/register', { username, email, password })
+        return request('register', { username, email, password })
             .then(r => {
-                console.log(r);
                 let { session, message } = r.data;
                 if(message) {
                     this.set(s => {
@@ -128,19 +132,21 @@ export default class Provider extends React.Component {
 
 
     logOut() {
-        clearCookies();
-        this.set(s => {
-            for(let k in s) {
-                s[k] = null;
-            }
-            s.loggedIn = false;
-            s.message = 'You have been successfully logged out.';
-            return s;
-        });
+        return request('logout')
+            .then(r => {
+                this.set(s => {
+                    for(let k in s) {
+                        s[k] = null;
+                    }
+                    s.loggedIn = false;
+                    s.message = 'You have been successfully logged out.';
+                    return s;
+                });
+                clearCookies();
+            });
     }
     
     handleChange(state) {
-        console.log('State has changed.');
     }
 
     render() {

@@ -11,7 +11,7 @@ const CampaignList = (props) =>
         url={c.url}
         leads={c.leads}
         toggle={() => props.toggle(c.id)}
-        on={c.on}
+        on={c.enabled}
         update={(k, v) => props.update(c.id, k, v)}
         isOpen={c.isOpen}
         placement={c.placement}
