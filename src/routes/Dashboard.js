@@ -6,39 +6,7 @@ import jeRequest from '../models/jeRequest';
 import Layout from '../Layout';
 import CardAdder from '../components/CardAdder';
 import CampaignList from '../components/CampaignList';
-
-const cookies = new Cookies();
-
-function getCookies() {
-    let session = cookies.get('session');
-    let token = cookies.get('token');
-    if(session && token) return {
-        'Session': session,
-        'X-CSRF-Token': token
-    }
-    else return {};
-}
-
-const request = (method, data) => {
-    // let options = {
-    //     method,
-    //     headers: getCookies(),
-    //     url: 'http://localhost:3001/campaigns'
-    // };
-    // console.log(options);
-    // return Axios(options);
-    return jeRequest[method](null, data, getCookies());
-}
-
-const get = () => {
-    return request('get')
-}
-
-const put = (campaign) => request('put', campaign);
-
-const post = (campaigns) => request('post', campaigns);
-
-const del = (ids) => request('delete', ids);
+import dao from '../models/Dao';
 
 
 const campaigns = [
@@ -96,12 +64,15 @@ export default class Dashboard extends React.Component {
     }
 
     componentDidMount() {
-        get().then(r => console.log(r)); 
-            // this.set(s => {
-            //     s.campaigns = r;
-            //     s.interval = setInterval(() => this.check(), 5000)
-            //     return s;
-            // })).catch(r => console.log(r));
+        if(dao.cookiesAreSet()) {
+            dao.get()
+                .then(r => this.set(s => {
+                    s.campaigns = r;
+                    return s;
+                }))
+                .catch(r => console.log(r))
+                .then(() => dao.setOldCampaigns(this.state.campaigns));
+        }
     }
 
     check() {
@@ -109,19 +80,13 @@ export default class Dashboard extends React.Component {
     }
 
     updateApi() {
-        Axios.post('/', this.state.campaings)
-            .then(() => {
-                console.log('Successfully updated.');
-                this.set(state => state.changed = false);
-            })
-            .catch(err => {
-                console.log('There was a problem connecting to the server.' + err);
-                clearInterval(this.state.interval);
-            });
+        console.log('UpdateAPI() has been called');
     }
 
     getCampaign(id) {
-        return this.state.campaigns.find(c => c.id === id);
+        let campaign = this.state.campaigns.find(c => c.id === id);
+        delete campaign.isOpen;
+        return campaign;
     }
 
     getIndex(id) {
@@ -129,14 +94,17 @@ export default class Dashboard extends React.Component {
     }
 
     addCampaign(name, url) {
-        const campaigns = this.state.campaigns;
-        campaigns.unshift({
+        const campaign = {
             name,
             url,
-            id: (Math.random() * 1000),
             leads: 0
-        });
-        this.setState({ campaigns });
+        };
+        dao.post(campaign)
+            .then(id => this.set(s => {
+                campaign.id = id;
+                s.campaigns.push(campaign);
+                return s;
+            }));
     }
 
     toggle(id) {
@@ -162,7 +130,7 @@ export default class Dashboard extends React.Component {
     }
 
     setCampaign(id, callback) {
-        this.set(state => {
+        return this.set(state => {
             let i = this.getIndex(id);
             let campaigns = state.campaigns;
             if(!(campaigns[i] = callback(campaigns[i]))) campaigns.splice(i, 1);
@@ -171,25 +139,28 @@ export default class Dashboard extends React.Component {
     }
 
     removeCampaign(id) {
-        this.setCampaign(id, (c) => c = null);
+        this.setCampaign(id, (c) => c = null)
+            .then(() => dao.delete(id));
     }
 
     update(id, k, v) {
+        let newCampaign;
         this.setCampaign(id, c => {
             c[k] = v;
+            newCampaign = c;
             return c;
-        });
+        }).then(() => dao.put(newCampaign));
     }
 
     render() {
         return (
             <Layout>
                 <div className='dashboard'>
+                    <h1 onClick={() => console.log(this.state.campaigns)}>Debug</h1>
                     <CardAdder add={(name, url) => this.addCampaign(name, url)}/>
                     <CampaignList
                         toggleSettings={id => this.toggleSettings(id)}
                         campaigns={this.state.campaigns}
-                        toggle={id => this.toggle(id)}
                         remove={id => this.removeCampaign(id)}
                         update={(id, k, v) => this.update(id, k, v)}
                     />

@@ -44,8 +44,8 @@ const Campaign = props =>
 
         <p>Lead Count: {props.leads}</p>
         <Switch
-            onChange={() => props.toggle()}
-            value={props.on}    
+            onChange={(e) => props.update('enabled', e.target.checked)}
+            value={props.enabled}    
         />
         {
             icons.map((icon, index) => <Icon

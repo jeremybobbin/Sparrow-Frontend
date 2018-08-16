@@ -3,50 +3,7 @@ import React from 'react';
 import Cookies from 'universal-cookie';
 
 import Context from './Context';
-
-const cookies = new Cookies();
-
-function getSession() {
-    return cookies.get('session');
-}
-
-function clearCookies() {
-    cookies.remove('session');
-    cookies.remove('token');
-}
-
-function setSession(session) {
-    if(session === undefined || session === null) throw 'This shit\'s broke.';
-    cookies.set('session', session);
-}
-
-function sessionIsSet() {
-    return (() => getSession() ? true : false);
-}
-
-function setToken(token) {
-    cookies.set('token', token);
-}
-
-function getToken() {
-    let value = cookies.get('token');
-    return value;
-}
-
-function getCookies() {
-    let session = cookies.get('session');
-    let token = cookies.get('token');
-    if(session && token) return {
-        'Session': session,
-        'X-CSRF-Token': token
-    }
-    else return {};
-}
-
-function request(path = '', body = {}, headers = {}) {
-    headers = Object.assign(getCookies(), headers);
-    return Axios.post('http://localhost:3001/' + path, body, {headers});
-}
+import dao from '../models/Dao';
 
 export default class Provider extends React.Component {
     
@@ -64,8 +21,8 @@ export default class Provider extends React.Component {
     }
 
     componentWillMount() {
-        if(sessionIsSet()) {
-            request('userinfo')
+        if(dao.cookiesAreSet()) {
+            dao.getUserInfo()
                 .then(r => {
                     let {username, email} = r.data;
                     this.set(s => {
@@ -75,12 +32,12 @@ export default class Provider extends React.Component {
                         return s;
                     });
                 })
-                .catch(r => clearCookies());
+                .catch(r => dao.clearCookies());
         }
     }
     
     logIn(username, password) {
-        return request('login', {username, password})
+        return dao.logIn(username, password)
             .then(r => {
                 let { session, email, message, token } = r.data;
                 if(r.data.message) {
@@ -90,8 +47,7 @@ export default class Provider extends React.Component {
                         return s;
                     });
                 } else {
-                    setSession(session);
-                    setToken(token);
+                    dao.setCookies(session, token);
                     
                     this.set(s => {
                         s.loggedIn = true;
@@ -109,7 +65,7 @@ export default class Provider extends React.Component {
     }
 
     register(username, email, password) {
-        return request('register', { username, email, password })
+        return dao.register(username, email, password)
             .then(r => {
                 let { session, message } = r.data;
                 if(message) {
@@ -118,7 +74,7 @@ export default class Provider extends React.Component {
                         return s;
                     });
                 } else {
-                    setSession(session);
+                    dao.setSession(session);
                     this.set(s => {
                         s.email = email;
                         s.username = username;
@@ -132,7 +88,7 @@ export default class Provider extends React.Component {
 
 
     logOut() {
-        return request('logout')
+        return dao.logOut()
             .then(r => {
                 this.set(s => {
                     for(let k in s) {
@@ -142,7 +98,7 @@ export default class Provider extends React.Component {
                     s.message = 'You have been successfully logged out.';
                     return s;
                 });
-                clearCookies();
+                dao.clearCookies();
             });
     }
     
