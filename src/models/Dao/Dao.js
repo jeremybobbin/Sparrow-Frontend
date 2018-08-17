@@ -13,8 +13,15 @@ export default class Dao {
 
     request(method = 'get', url = '', data = {}, headers = {}) {
         url = this.url + url;
+        console.log('METHOD: ' + method + ' URL: ' + url + 'DATA: ');
+        console.log(data);
         headers = Object.assign(this.getCookies(), headers);
-        return Axios({method, url, data, headers});
+        return Axios({method, url, data , headers});
+    }
+
+    getLeads(id, limit, offset) {
+        let url = 'leads?id=' + id + '&limit=' + limit + '&offset=' + offset;
+        return this.request('get', url);
     }
 
     get() {
@@ -22,20 +29,16 @@ export default class Dao {
     }
 
     getIndex(campaign) {
-        console.log('ALL CAMPAIGNS');
-        console.log(this.campaigns);
-        console.log('CAMPAIGN FROM getIndex()');
-        console.log(campaign);
         let camp = this.campaigns.find(c => c.id === campaign.id)
-        console.log('OLD CAMPAIGN WITH SAME ID');
-        console.log(camp);
         let i = this.campaigns.indexOf(camp);
         console.log('INDEX:   ' + i);
         return (i === -1) ? false : i;
     }
 
     setOldCampaigns(campaigns) {
-        this.oldCampaigns = campaigns.map(c => ({...c}));
+        if(!Array.isArray(campaigns) || campaigns.length === 0) return;
+        let clone = campaigns.slice(0);
+        this.oldCampaigns = JSON.parse(JSON.stringify(clone));
     }
 
     getOldCampaign(campaign) {
@@ -49,14 +52,13 @@ export default class Dao {
 
     replace(campaign) {
         const i = this.getIndex(campaign);
-        console.log('INDEX:   '+ i);
-        if(i) this.campaigns[i] = campaign;
-        else this.campaigns.push(campaign);
+        if(i === false) this.campaigns.push(campaign);
+        else this.campaigns[i] = campaign;
     }
 
     put(campaign) {
-        let c = {...campaign};
-        this.replace(c);
+        let clone = Object.assign({}, campaign);
+        this.replace(clone);
     }
     
     send() {
@@ -67,19 +69,31 @@ export default class Dao {
                 let newC = {};
                 if(oldC) {
                     Object.keys(c)
-                        .filter(k => c[k] !== oldC[k] && k !== 'isOpen')
+                        .filter(k => (c[k] !== oldC[k]))
                         .forEach(k => newC[k] = c[k]);
                 } else newC = c;
                 if(Object.keys(newC).length > 0) {
+                    console.log('C.ID');
+                    console.log(c.id);
                     newC.id = c.id;
+                    console.log('NewC');
+                    console.log(newC);
                     campsToSend.push(newC);
                 }
             });
         }
-        console.log(campsToSend);
-        if(campsToSend.length > 0 && campsToSend.every(c => Object.keys(c).length > 0)) {
+        if(Array.isArray(campsToSend) && campsToSend.length > 0 && campsToSend.every(c => Object.keys(c).length > 0)) {
             this.oldCampaigns = this.campaigns;
             this.campaigns = [];
+            campsToSend = campsToSend.map(c => {
+                let obj = {};
+                Object.keys(c)
+                    .filter(k => k !== 'leads' && k !== 'isOpen')
+                    .forEach(k => obj[k] = c[k]);
+                return obj;
+            });
+            console.log('Campaigns to Send:  ');
+            console.log(campsToSend);
             return Promise.all(campsToSend.map(c => this.request('put', 'campaigns', c)));
         }
     }
@@ -89,7 +103,13 @@ export default class Dao {
     }
 
     delete(ids) {
+        console.log('ID\'s:   ');
+        if(!Array.isArray(ids)) ids = [ids]; 
         return this.request('delete', 'campaigns', ids);
+    }
+
+    getOldCampaigns() {
+        return this.oldCampaigns;
     }
 
     clearCookies() {

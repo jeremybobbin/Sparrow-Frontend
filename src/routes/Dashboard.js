@@ -1,65 +1,20 @@
 import React from 'react';
 import Axios from 'axios';
 import Cookies from 'universal-cookie';
+import {Redirect} from 'react-router-dom';
 
 import jeRequest from '../models/jeRequest';
 import Layout from '../Layout';
 import CardAdder from '../components/CardAdder';
 import CampaignList from '../components/CampaignList';
+import LeadList from '../components/LeadList';
 import dao from '../models/Dao';
-
-
-const campaigns = [
-    {
-        id: 5,
-        name: 'RTO',
-        url: 'www.google.com',
-        leads: 501,
-        enabled: true,
-        tracking: true,
-        location: 1,
-        message: 'Has just signed up for XYZ'
-    },
-    {
-        id: 112,
-        name: 'HOPE',
-        url: 'www.example.com',
-        leads: 6593,
-        enabled: true,
-        tracking: true,
-        location: 0,
-        message: 'Has just signed up for XYZ'
-    },
-    {
-        id: 8,
-        name: 'Google',
-        url: 'www.wiki.org',
-        leads: 4,
-        enabled: true,
-        tracking: true,
-        location: 2,
-        message: 'Has just signed up for XYZ'
-    },
-    {
-        id: 1,
-        name: 'Google',
-        url: 'www.wiki.org',
-        leads: 4,
-        enabled: true,
-        tracking: true,
-        location: 3,
-        message: 'Has just signed up for XYZ'
-    },
-];
-
-campaigns.forEach(c => c.isOpen = false);
 
 export default class Dashboard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            changed: false,
-            campaigns
+            redirect: null
         };
     }
 
@@ -67,7 +22,10 @@ export default class Dashboard extends React.Component {
         if(dao.cookiesAreSet()) {
             dao.get()
                 .then(r => this.set(s => {
-                    s.campaigns = r;
+                    r.data.forEach(c => c.enabled = (c.enabled === 1 ? true : false));
+                    s.campaigns = r.data || [];
+                    console.log(s.campaigns);
+                    if (!s.campaigns) s.campaigns = [];
                     return s;
                 }))
                 .catch(r => console.log(r))
@@ -100,8 +58,8 @@ export default class Dashboard extends React.Component {
             leads: 0
         };
         dao.post(campaign)
-            .then(id => this.set(s => {
-                campaign.id = id;
+            .then(r => this.set(s => {
+                campaign.id = r.data;
                 s.campaigns.push(campaign);
                 return s;
             }));
@@ -139,6 +97,7 @@ export default class Dashboard extends React.Component {
     }
 
     removeCampaign(id) {
+        console.log(id);
         this.setCampaign(id, (c) => c = null)
             .then(() => dao.delete(id));
     }
@@ -152,17 +111,32 @@ export default class Dashboard extends React.Component {
         }).then(() => dao.put(newCampaign));
     }
 
+    toLeads(id) {
+        this.set(s => {
+            s.redirect = id;
+            return s;
+        });
+    }
+
+    renderRedirect() {
+        if(this.state.redirect) return <Redirect to={{
+            pathname: '/leads',
+            state: { id: this.state.redirect }
+        }}/>;
+    }
+
     render() {
         return (
             <Layout>
                 <div className='dashboard'>
-                    <h1 onClick={() => console.log(this.state.campaigns)}>Debug</h1>
+                    {this.renderRedirect()}
                     <CardAdder add={(name, url) => this.addCampaign(name, url)}/>
                     <CampaignList
                         toggleSettings={id => this.toggleSettings(id)}
                         campaigns={this.state.campaigns}
                         remove={id => this.removeCampaign(id)}
                         update={(id, k, v) => this.update(id, k, v)}
+                        toLeads={(id) => this.toLeads(id)}
                     />
                 </div>
             </Layout>

@@ -37,8 +37,9 @@ export default class Navbar extends React.Component {
                 <Username />
                 <div className={this.state.class}>
                     <ul>
-                        <li><NavLink exact to="/">Dashboard</NavLink></li>
+                        <li><NavLink exact to="/dashboard">Dashboard</NavLink></li>
                         <li><NavLink exact to="/register">Register</NavLink></li>
+                        <li><NavLink exact to="/leads">test</NavLink></li>
                         <li><LogButton /></li>
                     </ul>
                 </div>

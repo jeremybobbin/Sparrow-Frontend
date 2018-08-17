@@ -16,7 +16,7 @@ const icons = [
     {
         name: 'person',
         src: 'https://image.flaticon.com/icons/svg/74/74472.svg',
-        func: '',
+        func: 'toLeads',
     },
     {
         name: 'trash',
