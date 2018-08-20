@@ -5,8 +5,10 @@ import Layout from '../Layout';
 import Form from '../components/Form';
 import Input from '../components/Input';
 
+import '../css/routes/login.css';
+
 const Login = props =>
-    <Layout>
+    <Layout className='login-page'>
         <Form
             buttonText='Log In'
             func='logIn'
@@ -24,4 +26,5 @@ const Login = props =>
         >
         </Form>
     </Layout>;
+    
 export default Login;

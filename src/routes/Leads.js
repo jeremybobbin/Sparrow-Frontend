@@ -39,9 +39,16 @@ export default class Leads extends React.Component {
             }));
     }
 
+    handleScroll(e) {
+        const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
+        if (bottom) this.nextPage();
+    }
+
+    
+
     render() {
         return (
-            <Layout>
+            <Layout onScroll={this.handleScroll}>
                 <LeadList leads={this.state.leads} />
             </Layout>
         )

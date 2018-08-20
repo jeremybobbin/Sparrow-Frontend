@@ -5,6 +5,7 @@ import Register from './routes/Register';
 import Leads from './routes/Leads';
 import Login from './routes/Login';
 import Root from './routes/Root';
+import AuthenticatedRoute from './components/AuthenticatedRoute';
 
 import Provider from './components/Provider';
 
@@ -15,10 +16,16 @@ class App extends Component {
 				<BrowserRouter>
 					<Switch>
 						<Route exact path="/" component={Root}/>
-						<Route exact path="/dashboard" component={Dashboard}/>
+						<AuthenticatedRoute
+							exact
+							path='/dashboard'
+							component={Dashboard}/>
 						<Route exact path="/register" component={Register}/>
 						<Route exact path="/login" component={Login}/>
-						<Route path="/leads" render={(props) => <Leads {...props}/>}/>
+						<AuthenticatedRoute
+							path="/leads"
+							render={(props) => <Leads {...props}/>}
+						/>
 					</Switch>
 				</BrowserRouter>
 			</Provider>

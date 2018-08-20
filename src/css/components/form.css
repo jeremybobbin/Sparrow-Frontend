@@ -1,0 +1,35 @@
+#password,
+#username,
+#email {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.form {
+    text-align: center;
+}
+
+.form label {
+    text-align: left;
+    width: 90%;
+}
+
+.form button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 12px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 10px 2px 4px 2px;
+    cursor: pointer;
+    border-radius: 2px;
+    width: 80%;
+}

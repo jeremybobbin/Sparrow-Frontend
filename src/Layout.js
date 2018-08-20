@@ -7,7 +7,9 @@ export default class Layout extends React.Component {
         return (
             <React.Fragment>
                 <Header/>
+                <div className={this.props.className}>
                     {this.props.children}
+                </div>
                 <Footer/>
             </React.Fragment>
         );

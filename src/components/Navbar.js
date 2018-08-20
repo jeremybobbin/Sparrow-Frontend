@@ -32,14 +32,16 @@ export default class Navbar extends React.Component {
 
     render () {
         return (
-            <nav>
-                <Hamburger onClick={() => this.toggle()}/>
-                <Username />
-                <div className={this.state.class}>
-                    <ul>
+            <nav className='navbar'>
+                <div className='top-container'>
+                    <Hamburger isOpen={this.state.class === 'closed' ? false : true} onClick={() => this.toggle()}/>
+                    <Username />
+                </div>
+                <div className={`link-list-container ${this.state.class}`}>
+                    <ul className='link-list'>
                         <li><NavLink exact to="/dashboard">Dashboard</NavLink></li>
+                        <li><NavLink exact to="/leads">Leads</NavLink></li>
                         <li><NavLink exact to="/register">Register</NavLink></li>
-                        <li><NavLink exact to="/leads">test</NavLink></li>
                         <li><LogButton /></li>
                     </ul>
                 </div>

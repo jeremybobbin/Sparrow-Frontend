@@ -6,7 +6,7 @@ const Message = props =>
     <Context.Consumer>
         {(c) => (
             c.state.message ?
-                <p>{c.state.message}</p>
+                <p className='message'>{c.state.message}</p>
                 :
                 <p className='hidden'></p>
         )}

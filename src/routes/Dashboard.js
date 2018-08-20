@@ -14,7 +14,8 @@ export default class Dashboard extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            redirect: null
+            redirect: null,
+            redirectPath: null,
         };
     }
 
@@ -24,11 +25,19 @@ export default class Dashboard extends React.Component {
                 .then(r => this.set(s => {
                     r.data.forEach(c => c.enabled = (c.enabled === 1 ? true : false));
                     s.campaigns = r.data || [];
-                    console.log(s.campaigns);
                     if (!s.campaigns) s.campaigns = [];
                     return s;
                 }))
-                .catch(r => console.log(r))
+                .catch(r => {
+                    this.set(s => {
+                        s.campaigns = [{
+                            name: 'Jer',
+                            url: 'https://www.jer.com',
+                            enabled: true
+                        }];
+                        return s;
+                    });
+                })
                 .then(() => dao.setOldCampaigns(this.state.campaigns));
         }
     }
@@ -119,10 +128,14 @@ export default class Dashboard extends React.Component {
     }
 
     renderRedirect() {
-        if(this.state.redirect) return <Redirect to={{
+        if(this.state.redirect && this.state.redirectPath === null) return <Redirect to={{
             pathname: '/leads',
             state: { id: this.state.redirect }
         }}/>;
+        if(this.state.redirect && this.state.redirectPath) return <Redirect to={{
+            pathname: this.state.redirectPath
+        }}
+        />;
     }
 
     render() {

@@ -5,7 +5,7 @@ const cookies = new Cookies();
 
 export default class Dao {
     constructor(url) {
-        window.setInterval(() => this.send(), 3000);
+        window.setInterval(() => this.send(), 500);
         this.url = url;
         this.oldCampaigns = [];
         this.campaigns = [];

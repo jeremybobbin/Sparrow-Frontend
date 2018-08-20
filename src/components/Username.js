@@ -6,7 +6,7 @@ const Username = props =>
     <Context.Consumer>
         {(c) => (
             c.state.username ?
-                <p>{c.state.username}</p>
+                <p className='username'>{c.state.username}</p>
                 :
                 <p className='hidden'></p>
         )}

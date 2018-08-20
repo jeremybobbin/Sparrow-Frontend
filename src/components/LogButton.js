@@ -8,9 +8,10 @@ const LogButton = props =>
         {(context) => (
             <React.Fragment>
                 <Route render={({ history }) => (
-                    <a 
+                    <a href='/'
                         className={props.className}
                         onClick={(e) => {
+                            e.preventDefault();
                             if(context.state.loggedIn) context.logOut();
                             else if (props.email === undefined && props.password === undefined) history.push('/login');
                             else context.logIn(props.email, props.password);
