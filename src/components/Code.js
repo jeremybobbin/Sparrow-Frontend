@@ -11,14 +11,14 @@ export default class Code extends React.Component {
             copied: false,
         };
         this.script = `<script>(function(w,n) { \
-        if (typeof(w[n]) == 'undefined'){ob=n+'Obj';w[ob]=[];w[n]=function(){w[ob].push(arguments);}; \
-        d=document.createElement('script');d.type = 'text/javascript';d.async=1; \
-        d.src='${baseUrl + 'script'}' ;x=document.getElementsByTagName('script')[0];x.parentNode.insertBefore(d,x);} \
-        })(window, 'sparrow', ''); \
-        sparrow('config', 'baseUrl', '${baseUrl}'); \
-        sparrow('config', 'https', ${props.url.includes('https') ? 1 : 0}); \
-        sparrow('config', 'track', ${props.tracking ? 1 : 0}); \
-        </script>`;
+            if (typeof(w[n]) == 'undefined'){ob=n+'Obj';w[ob]=[];w[n]=function(){w[ob].push(arguments);}; \
+            d=document.createElement('script');d.type = 'text/javascript';d.async=1; \
+            d.src='${baseUrl + 'script'}' ;x=document.getElementsByTagName('script')[0];x.parentNode.insertBefore(d,x);} \
+            })(window, 'sparrow', ''); \
+            sparrow('config', 'baseUrl', '${baseUrl}'); \
+            sparrow('config', 'https', ${props.url.includes('https') ? 1 : 0}); \
+            sparrow('config', 'track', ${props.tracking ? 1 : 0}); \
+            </script>`;
     }
   
     onCopy() {

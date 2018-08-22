@@ -1,7 +1,7 @@
 import React from 'react';
 
-import Consumer from './Consumer';
-import Input from './Input';
+import {Consumer} from './Context';
+// import Input from './Input';
 import { timingSafeEqual } from 'crypto';
 
 import '../css/components/form.css';
@@ -10,24 +10,9 @@ export default class Form extends React.Component {
     constructor(props) {
         super(props);
         const values = {};
-        console.log(props.inputs);
-        props.inputs.forEach(input => {
-            values[input.id] = '';
-        });
+        props.inputs.forEach(input => values[input.id] = '');
         this.state = values;
-
-        this.inputs = props.inputs.map((obj, i) => {
-            return (
-                <Input
-                    key={i}
-                    label={obj.label}
-                    name={obj.id}
-                    type={obj.type || null}
-                    value={this.state[(() => obj.id)]}
-                    onChange={(e) => this.update(e) }
-                />
-            );
-        });
+        this.inputs = props.inputs;
     }
 
     set = callback => new Promise(
@@ -44,21 +29,25 @@ export default class Form extends React.Component {
 
     handle(e, c) {
         e.preventDefault();
-        let args = [];
-        for(let prop in this.state) {
-            args.push(this.state[prop]);
-        }
-        console.log(args);
-        ((a, b) => console.log(a + ' | ' + b))(...args);
+        const args = Object.keys(this.state).map(k => this.state[k]);
         c[this.props.func](...args);
     }
 
     render() {
+        const inputs = this.inputs.map((obj, i) => <Input
+            key={i}
+            label={obj.label}
+            name={obj.id}
+            type={obj.type || null}
+            value={this.state[(() => obj.id)]}
+            onChange={(e) => this.update(e) }
+        />);
+
         return (
             <Consumer>
                 {c => (
                     <form className='form' onSubmit={(e) => this.handle(e, c)}>
-                        {this.inputs}
+                        {inputs}
                         <button type='submit'>{this.props.buttonText}</button>
                     </form>
                 )}
@@ -66,3 +55,14 @@ export default class Form extends React.Component {
         );
     }
 }
+
+
+
+
+const Input = props => 
+    props.label ?
+    <label htmlFor={props.id || props.name}>{props.label}
+        <input name={props.name} value={props.value} onChange={(e) => props.onChange(e)} type={props.type || 'text'} className={props.className || ''} id={props.id || props.name} placeholder={props.placeholder} />
+    </label>
+    :
+    <input value={props.value} onChange={(e) => props.onChange(e)} type={props.type} className={props.className} id={props.id} placeholder={props.placeholder} />;

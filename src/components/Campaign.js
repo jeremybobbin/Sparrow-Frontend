@@ -26,51 +26,51 @@ const icons = [
     },
 ];
 
-const Campaign = props =>
+const Icons = props => icons.map((icon, index) => <Icon
+    key={index}
+    src={icon.src}
+    className={icon.name}
+    onClick={(e) => props[icon.func](e)}
+/>);
+
+const Campaign = ({name, url, isOpen, enabled, leads, update, message, placement}) =>
     <div className="campaign card">
         <FluidText
             className='name'
             tag='h5'
-            value={props.name}
-            isInput={props.isOpen}
-            onChange={(v) => props.update('name', v)}
+            value={name}
+            isInput={isOpen}
+            onChange={(v) => update('name', v)}
         />
         <FluidText
             className='url'
             tag='h6'
-            value={props.url}
-            isInput={props.isOpen}
-            onChange={(v) => props.update('url', v)}
+            value={url}
+            isInput={isOpen}
+            onChange={(v) => update('url', v)}
         />
 
-        <p className='lead-count'>Lead Count: {props.leads}</p>
+        <p className='lead-count'>Lead Count: {leads}</p>
         <Switch
             className='switch'
-            onChange={(e) => props.update('enabled', e.target.checked)}
-            value={props.enabled}    
+            onChange={(e) => update('enabled', e.target.checked)}
+            value={enabled}    
         />
-        {
-            icons.map((icon, index) => <Icon
-                key={index}
-                src={icon.src}
-                className={icon.name}
-                onClick={(e) => props[icon.func](e)}
-            />)
-        }
+        <Icons />
         <div className='placeholder'></div>
-        <div className={`settings ${props.isOpen ? 'open' : 'closed'}`}>
+        <div className={`settings ${isOpen ? 'open' : 'closed'}`}>
             <label htmlFor='selector' > Position: 
-                <Selector id='selector' onChange={(v) => props.update('position', v)} options={['Top Left', 'Top Right', 'Bottom Left', 'Bottom Right']}/>
+                <Selector id='selector' onChange={(v) => update('position', v)} options={['Top Left', 'Top Right', 'Bottom Left', 'Bottom Right']}/>
             </label>
             <label htmlFor='message' > Message: 
-                <input id='message' type='text' onChange={(e) => props.update('message', e.target.value)} value={props.message} />
+                <input id='message' type='text' onChange={(e) => update('message', e.target.value)} value={message} />
             </label>
             {
-                props.enabled ?
+                enabled ?
                 <Code
-                    url={props.url}
-                    placement={props.placement}
-                    message={props.message}
+                    url={url}
+                    placement={placement}
+                    message={message}
                 /> : null
             }
         </div>

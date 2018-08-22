@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom'
-import Dashboard from './routes/Dashboard';
-import Register from './routes/Register';
-import Leads from './routes/Leads';
-import Login from './routes/Login';
-import Root from './routes/Root';
+import Dashboard from './pages/Dashboard';
+import Register from './pages/Register';
+import Leads from './pages/Leads';
+import Login from './pages/Login';
+import Root from './pages/Root';
+import Layout from './components/Layout';
 import AuthenticatedRoute from './components/AuthenticatedRoute';
 
 import Provider from './components/Provider';
@@ -25,6 +26,7 @@ class App extends Component {
 						<AuthenticatedRoute
 							path="/leads"
 							render={(props) => <Leads {...props}/>}
+							component={Leads}
 						/>
 					</Switch>
 				</BrowserRouter>

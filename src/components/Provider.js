@@ -1,9 +1,8 @@
 import Axios from 'axios';
 import React from 'react';
-import Cookies from 'universal-cookie';
 
 import Context from './Context';
-import dao from '../models/Dao';
+import dao from '../utils/Dao';
 
 export default class Provider extends React.Component {
     
@@ -37,9 +36,11 @@ export default class Provider extends React.Component {
     }
     
     logIn(username, password) {
+        console.log('LOGIN has been called.');
         return dao.logIn(username, password)
             .then(r => {
                 let { session, email, message, token } = r.data;
+                console.log(r.data);
                 if(r.data.message) {
                     this.set(s => {
                         s.message = typeof message === 'string' ? message : 'An unknown error has occured.';
@@ -59,6 +60,7 @@ export default class Provider extends React.Component {
                 }
             })
             .catch(r => this.set(s => {
+                console.log(r);
                 s.message = 'Cannot connect to server. Please try again later.';
                 return s;
             }))

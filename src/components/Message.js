@@ -1,15 +1,15 @@
 import React from 'react';
 
-import Context from './Context';
+import {Consumer} from './Context';
 
 const Message = props =>
-    <Context.Consumer>
+    <Consumer>
         {(c) => (
             c.state.message ?
                 <p className='message'>{c.state.message}</p>
                 :
                 <p className='hidden'></p>
         )}
-    </Context.Consumer>;
+    </Consumer>;
 
 export default Message;
