@@ -13,6 +13,7 @@ export default class Form extends React.Component {
         props.inputs.forEach(input => values[input.id] = '');
         this.state = values;
         this.inputs = props.inputs;
+        this.submitHandler = props.submitHandler
     }
 
     set = callback => new Promise(
@@ -27,10 +28,10 @@ export default class Form extends React.Component {
         }).then(res => console.log(res))
     }
 
-    handle(e, c) {
+    handle(e) {
         e.preventDefault();
         const args = Object.keys(this.state).map(k => this.state[k]);
-        c[this.props.func](...args);
+        this.submitHandler(...args);
     }
 
     render() {
@@ -46,7 +47,7 @@ export default class Form extends React.Component {
         return (
             <Consumer>
                 {c => (
-                    <form className='form' onSubmit={(e) => this.handle(e, c)}>
+                    <form className='form' onSubmit={(e) => this.handle(e)}>
                         {inputs}
                         <button type='submit'>{this.props.buttonText}</button>
                     </form>

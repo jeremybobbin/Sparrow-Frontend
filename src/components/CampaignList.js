@@ -3,8 +3,6 @@ import Campaign from './Campaign';
 
 const CampaignList = (props) => {
     return props.campaigns === undefined ? null : (props.campaigns.map((c, index) => <Campaign
-        toggleSettings={() => props.toggleSettings(c.id)}
-        remove={() => props.remove(c.id)}
         id={c.id}
         key={index}
         name={c.name}
@@ -16,6 +14,8 @@ const CampaignList = (props) => {
         isOpen={c.isOpen}
         placement={c.placement}
         message={c.message}
+        remove={() => props.remove(c.id)}
+        toggleSettings={() => props.toggleSettings(c.id)}
         toLeads={() => props.toLeads(c.id)}
     />))
 }

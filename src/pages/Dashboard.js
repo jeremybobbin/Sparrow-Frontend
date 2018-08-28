@@ -12,33 +12,23 @@ import dao from '../utils/Dao';
 export default class Dashboard extends React.Component {
     constructor(props) {
         super(props);
+        this.loadCampaigns = props.loadCampaigns;
+        this.redirect = props.redirect;
+
         this.state = {
-            redirect: null,
-            redirectPath: null,
+            changed: false,
+            campaigns: []
         };
     }
 
-    componentDidMount() {
-        if(dao.cookiesAreSet()) {
-            dao.get()
-                .then(r => this.set(s => {
-                    r.data.forEach(c => c.enabled = (c.enabled === 1 ? true : false));
-                    s.campaigns = r.data || [];
-                    if (!s.campaigns) s.campaigns = [];
-                    return s;
-                }))
-                .catch(r => {
-                    this.set(s => {
-                        s.campaigns = [{
-                            name: 'Jer',
-                            url: 'https://www.jer.com',
-                            enabled: true
-                        }];
-                        return s;
-                    });
-                })
-                .then(() => dao.setOldCampaigns(this.state.campaigns));
-        }
+    componentWillMount() {
+        this.loadCampaigns()
+            .then(campaigns => this.set(s => {
+                campaigns = campaigns.map(c => c.isOpen = false);
+                s.campaigns = campaigns;
+                console.log(campaigns);
+                return s;
+            }));
     }
 
     check() {
@@ -66,8 +56,8 @@ export default class Dashboard extends React.Component {
             leads: 0
         };
         dao.post(campaign)
-            .then(r => this.set(s => {
-                campaign.id = r.data;
+            .then(({data}) => this.set(s => {
+                campaign.id = data;
                 s.campaigns.push(campaign);
                 return s;
             }));
@@ -96,18 +86,23 @@ export default class Dashboard extends React.Component {
     }
 
     setCampaign(id, callback) {
-        return this.set(state => {
-            let i = this.getIndex(id);
-            let campaigns = state.campaigns;
-            if(!(campaigns[i] = callback(campaigns[i]))) campaigns.splice(i, 1);
-            return state;
+        return this.set(s => {
+            const campaign = s.campaigns.filter(c => c.id === id);
+            const index = s.campaigns.indexOf(campaign);
+            let newCampaign = callback(campaign);
+            dao.put(newCampaign);
+            if(newCampaign === null) {
+                s.campaigns = s.campaigns.filter(c => c.id !== id);
+                dao.delete(id);
+            } else s.campaigns[index] = newCampaign;
+            return s;
         });
     }
 
     removeCampaign(id) {
-        console.log(id);
-        this.setCampaign(id, (c) => c = null)
-            .then(() => dao.delete(id));
+        dao.delete(id)
+            .then(this.setCampaign(id, (c) => c = null))
+            .catch((e) => console.log(e));
     }
 
     update(id, k, v) {
@@ -120,38 +115,21 @@ export default class Dashboard extends React.Component {
     }
 
     toLeads(id) {
-        this.set(s => {
-            s.redirect = id;
-            return s;
-        });
-    }
-
-    renderRedirect() {
-        if(this.state.redirect && this.state.redirectPath === null) return <Redirect to={{
-            pathname: '/leads',
-            state: { id: this.state.redirect }
-        }}/>;
-        if(this.state.redirect && this.state.redirectPath) return <Redirect to={{
-            pathname: this.state.redirectPath
-        }}
-        />;
+        this.redirect('/leads/' + id);
     }
 
     render() {
         return (
-            <Layout>
-                <div className='dashboard'>
-                    {this.renderRedirect()}
-                    <CardAdder add={(name, url) => this.addCampaign(name, url)}/>
-                    <CampaignList
-                        toggleSettings={id => this.toggleSettings(id)}
-                        campaigns={this.state.campaigns}
-                        remove={id => this.removeCampaign(id)}
-                        update={(id, k, v) => this.update(id, k, v)}
-                        toLeads={(id) => this.toLeads(id)}
-                    />
-                </div>
-            </Layout>
+            <div className='dashboard'>
+                <CardAdder add={(name, url) => this.addCampaign(name, url)}/>
+                <CampaignList
+                    toggleSettings={id => this.toggleSettings(id)}
+                    campaigns={this.state.campaigns}
+                    remove={id => this.removeCampaign(id)}
+                    update={(id, k, v) => this.update(id, k, v)}
+                    toLeads={(id) => this.toLeads(id)}
+                />
+            </div>
         ); 
     }
 }

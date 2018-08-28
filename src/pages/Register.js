@@ -11,26 +11,23 @@ import Form from '../components/Form';
 
 
 export default (props) =>
-    <Layout>
-        <Form
-            func='register'
-            buttonText='Register'
-            inputs={[
-                {
-                    label: 'Username: ',
-                    id: 'username'
-                },
-                {
-                    label: 'Email: ',
-                    id: 'email',
-                    type: 'email'
-                },
-                {
-                    label: 'Password: ',
-                    id: 'password',
-                    type: 'password',
-                },
-            ]}
-        >
-        </Form>
-    </Layout>;
+    <Form
+        func='register'
+        buttonText='Register'
+        inputs={[
+            {
+                label: 'Username: ',
+                id: 'username'
+            },
+            {
+                label: 'Email: ',
+                id: 'email',
+                type: 'email'
+            },
+            {
+                label: 'Password: ',
+                id: 'password',
+                type: 'password',
+            },
+        ]}
+    />;

@@ -13,10 +13,10 @@ export default class Dao {
 
     request(method = 'get', url = '', data = {}, headers = {}) {
         url = this.url + url;
-        console.log('METHOD: ' + method + ' URL: ' + url + 'DATA: ');
-        console.log(data);
-        headers = Object.assign(this.getCookies(), headers);
-        return Axios({method, url, data , headers});
+        let cookies = this.getCookies();
+        headers = Object.assign(cookies, headers);
+        let opt = {method, url, data , headers};
+        return Axios(opt);
     }
 
     getLeads(id, limit, offset) {
@@ -24,8 +24,9 @@ export default class Dao {
         return this.request('get', url);
     }
 
-    get() {
-        return this.request('get', 'campaigns');
+    getCampaigns() {
+        return this.request('get', 'campaigns')
+            .then(r => r.data === false ? null : r.data);
     }
 
     getIndex(campaign) {
@@ -73,11 +74,7 @@ export default class Dao {
                         .forEach(k => newC[k] = c[k]);
                 } else newC = c;
                 if(Object.keys(newC).length > 0) {
-                    console.log('C.ID');
-                    console.log(c.id);
                     newC.id = c.id;
-                    console.log('NewC');
-                    console.log(newC);
                     campsToSend.push(newC);
                 }
             });
@@ -92,8 +89,6 @@ export default class Dao {
                     .forEach(k => obj[k] = c[k]);
                 return obj;
             });
-            console.log('Campaigns to Send:  ');
-            console.log(campsToSend);
             return Promise.all(campsToSend.map(c => this.request('put', 'campaigns', c)));
         }
     }
@@ -145,19 +140,27 @@ export default class Dao {
     }
 
     getUserInfo() {
-        return this.request('post', 'userinfo');
+        return this.request('post', 'user/userinfo');
     }
 
     logIn(username, password) {
-        return this.request('post', 'login', {username, password});
+        console.log('Username:  ' + username);
+        console.log('Password: ' + password);
+        if(username === undefined && password === undefined) {
+            return this.getUserInfo()
+                .then(({data}) => data.username);
+        }
+        return this.request('post', 'user/login', {username, password})
+            .then(({data}) => data.username);
+
     }
 
     logOut() {
-        return this.request('post', 'logout');
+        return this.request('post', 'user/logout');
     }
 
     register(username, email, password) {
-        return this.request('post', 'register', { username, email, password });
+        return this.request('post', 'user/register', { username, email, password });
     }
 
 }

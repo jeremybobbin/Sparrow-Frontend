@@ -26,7 +26,7 @@ export default class Header extends React.Component {
                 <nav className='navbar'>
                     <div className='top-container'>
                         <Hamburger isOpen={this.state.isOpen} onClick={() => this.toggle()}/>
-                        <Username />
+                        <Username value={this.props.username} />
                     </div>
                     <div className={`link-list-container ${this.state.isOpen ? 'open' : 'closed'}`}>
                         <ul className='link-list'>
@@ -37,7 +37,7 @@ export default class Header extends React.Component {
                         </ul>
                     </div>
                 </nav>
-                <Message />
+                <p>{this.props.message}</p>
             </header>
         );
     }

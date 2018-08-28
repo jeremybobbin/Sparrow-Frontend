@@ -2,15 +2,9 @@ import React from 'react';
 
 import Context from './Context';
 
-const Username = props =>
-    <Context.Consumer>
-        {(c) => (
-            c.state.username ?
-                <p className='username'>{c.state.username}</p>
-                :
-                <p className='hidden'></p>
-        )}
-    </Context.Consumer>;
+const Username = ({value}) => value === null ?
+    <React.Fragment/>:
+    <p>{value}</p>;
 
 export default Username;
 

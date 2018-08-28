@@ -33,7 +33,7 @@ const Icons = props => icons.map((icon, index) => <Icon
     onClick={(e) => props[icon.func](e)}
 />);
 
-const Campaign = ({name, url, isOpen, enabled, leads, update, message, placement}) =>
+const Campaign = ({isOpen, name, url, remove, enabled, placement, toLeads, toggleSettings, update, leads, message}) =>
     <div className="campaign card">
         <FluidText
             className='name'
@@ -56,7 +56,11 @@ const Campaign = ({name, url, isOpen, enabled, leads, update, message, placement
             onChange={(e) => update('enabled', e.target.checked)}
             value={enabled}    
         />
-        <Icons />
+        <Icons 
+            remove={(e) => remove(e)}
+            toLeads={(e) => toLeads(e)}
+            toggleSettings={(e) => toggleSettings(e)}
+        />
         <div className='placeholder'></div>
         <div className={`settings ${isOpen ? 'open' : 'closed'}`}>
             <label htmlFor='selector' > Position: 

@@ -56,9 +56,9 @@ export default class Leads extends React.Component {
 
     render() {
         return (
-            <Layout onScroll={this.handleScroll}>
+            <div>
                 <LeadList leads={this.state.leads} />
-            </Layout>
+            </div>
         )
     }
 }

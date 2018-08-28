@@ -7,11 +7,10 @@ import Input from '../components/Input';
 
 import '../css/routes/login.css';
 
-const Login = props =>
-    <Layout className='login-page'>
+const Login = ({submitHandler}) =>
         <Form
             buttonText='Log In'
-            func='logIn'
+            submitHandler={submitHandler}
             inputs={[
                 {
                     label: 'Username: ',
@@ -23,8 +22,6 @@ const Login = props =>
                     type: 'password'
                 }
             ]}
-        >
-        </Form>
-    </Layout>;
+        />;
     
 export default Login;

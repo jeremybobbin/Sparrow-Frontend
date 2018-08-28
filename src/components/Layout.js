@@ -6,7 +6,10 @@ export default class Layout extends React.Component {
     render() {
         return (
             <React.Fragment>
-                <Header/>
+                <Header 
+                    message={this.props.message}
+                    username={this.props.username}    
+                />
                     <main className={this.props.className}>
                         {this.props.children}
                     </main>

@@ -2,14 +2,8 @@ import React from 'react';
 
 import {Consumer} from './Context';
 
-const Message = props =>
-    <Consumer>
-        {(c) => (
-            c.state.message ?
-                <p className='message'>{c.state.message}</p>
-                :
-                <p className='hidden'></p>
-        )}
-    </Consumer>;
+const Message = ({message}) => message === null ?
+    <React.Fragment/>:
+    <p>{message}</p>;
 
 export default Message;
