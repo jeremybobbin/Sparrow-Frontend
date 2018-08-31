@@ -21,6 +21,7 @@ class App extends Component {
 			isLoggedIn: false,
 			username: null,
 		};
+		if(!this.state.isLoggedIn) this.logIn();
 	}
 
 	set(callback) {
@@ -41,21 +42,10 @@ class App extends Component {
 			s.redirectPath = '';
 			return s;
 		});
-
-		if(!this.state.isLoggedIn) this.logIn();
 	}
 
 	loadCampaigns() {
-		return new Promise((resolve) => {
-			if(this.state.isLoggedIn) resolve();
-			else return this.logIn();
-		})
-		.then(() => dao.getCampaigns())
-		.then(c => {
-			console.log(c);
-			return c;
-		})
-		.catch(() => console.log('Problem'));
+		return dao.getCampaigns();
 	}
 
 	redirect(path) {
@@ -76,6 +66,7 @@ class App extends Component {
 		dao.logIn(username, password)
 			.then(newUsername => this.set(s => {
 				s.isLoggedIn = true;
+				console.log(newUsername);
 				if(username) s.message = 'You have been logged in successfully.';
 				s.username = newUsername;
 				return s;

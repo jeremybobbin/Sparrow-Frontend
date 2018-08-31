@@ -7,20 +7,13 @@ import Layout from '../components/Layout';
 export default class Leads extends React.Component {
     constructor(props) {
         super();
-        let {random, location} = props;
-        this.id = location.state ? location.state.id : null;
+        let {random, location} = props;        
+        this.id = Number.parseInt(location.pathname.split('/')[2]);
+        console.log('ID:   ' + this.id);
         this.loaded = 0;
         this.state = {
             limit: 15,
-            leads: [
-                {
-                    first: 'Jer',
-                    last: 'Guy',
-                    email: 'jeremybobbin@gmail.com',
-                    ip: '6',
-                    city: 'Florlando'
-                }
-            ],
+            leads: [],
         };
     }
 
@@ -33,30 +26,41 @@ export default class Leads extends React.Component {
     componentWillMount() {
         this.nextPage();
     }
+    componentDidMount() {
+        window.addEventListener('scroll', (e) => this.handleScroll(e));
+    }
+    
+    componentWillUnmount() {
+        window.removeEventListener('scroll', (e) => this.handleScroll(e));
+    }
 
     nextPage() {
-        return dao.getLeads(this.id, this.state.limit, this.loaded)
-            .then(r => this.set(s => {
-                r.data.forEach(lead => {
-                    console.log(lead);
-                    s.leads.push(lead)});
-                this.loaded += r.data.length;
-                console.log('S.LEADS');
-                console.log(s.leads);
-                return s;
-            }));
+        if(!this.end) return dao.getLeads(this.id, this.state.limit, this.loaded)
+            .then(({data}) => {
+                if(data.length === 0) return this.end = true; 
+                this.set(s => {
+                    data.forEach(lead => {
+                        console.log(lead);
+                        s.leads.push(lead)});
+                    this.loaded += data.length;
+                    return s;
+                })});
     }
 
     handleScroll(e) {
-        const bottom = e.target.scrollHeight - e.target.scrollTop === e.target.clientHeight;
-        if (bottom) this.nextPage();
+        const windowHeight = "innerHeight" in window ? window.innerHeight : document.documentElement.offsetHeight;
+        const body = document.body;
+        const html = document.documentElement;
+        const docHeight = Math.max(body.scrollHeight, body.offsetHeight, html.clientHeight,  html.scrollHeight, html.offsetHeight);
+        const windowBottom = windowHeight + window.pageYOffset;
+        if (windowBottom >= docHeight) this.nextPage();
     }
 
     
 
     render() {
         return (
-            <div>
+            <div onScroll={(e) => this.handleScroll(e)}>
                 <LeadList leads={this.state.leads} />
             </div>
         )

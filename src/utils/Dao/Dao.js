@@ -1,5 +1,6 @@
 import Axios from 'axios';
 import Cookies from 'universal-cookie';
+import CampaignList from '../../components/CampaignList';
 
 const cookies = new Cookies();
 
@@ -26,7 +27,11 @@ export default class Dao {
 
     getCampaigns() {
         return this.request('get', 'campaigns')
-            .then(r => r.data === false ? null : r.data);
+            .then(r => {
+                console.log('getCampaigns');
+                console.log(r);
+                return r.data === false ? null : r.data;
+            });
     }
 
     getIndex(campaign) {
@@ -59,6 +64,8 @@ export default class Dao {
 
     put(campaign) {
         let clone = Object.assign({}, campaign);
+        console.log('Clone: ');
+        console.log(clone)
         this.replace(clone);
     }
     
@@ -140,18 +147,23 @@ export default class Dao {
     }
 
     getUserInfo() {
-        return this.request('post', 'user/userinfo');
+        return this.request('post', 'user/info');
     }
 
     logIn(username, password) {
-        console.log('Username:  ' + username);
-        console.log('Password: ' + password);
         if(username === undefined && password === undefined) {
             return this.getUserInfo()
-                .then(({data}) => data.username);
+                .then(({data}) => {
+                    const {session, token, username} = data;
+                    if(session && token) this.setCookies(session, token);
+                    return username;
+                });
         }
         return this.request('post', 'user/login', {username, password})
-            .then(({data}) => data.username);
+            .then(({data}) => {
+                this.setCookies(data.session, data.token);
+                return data.username
+            });
 
     }
 

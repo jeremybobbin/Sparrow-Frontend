@@ -12,7 +12,7 @@ const CampaignList = (props) => {
         enabled={c.enabled}
         update={(k, v) => props.update(c.id, k, v)}
         isOpen={c.isOpen}
-        placement={c.placement}
+        location={c.location}
         message={c.message}
         remove={() => props.remove(c.id)}
         toggleSettings={() => props.toggleSettings(c.id)}

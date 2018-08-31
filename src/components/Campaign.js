@@ -33,7 +33,7 @@ const Icons = props => icons.map((icon, index) => <Icon
     onClick={(e) => props[icon.func](e)}
 />);
 
-const Campaign = ({isOpen, name, url, remove, enabled, placement, toLeads, toggleSettings, update, leads, message}) =>
+const Campaign = ({isOpen, name, url, remove, enabled, location, toLeads, toggleSettings, update, leads, message}) =>
     <div className="campaign card">
         <FluidText
             className='name'
@@ -58,13 +58,13 @@ const Campaign = ({isOpen, name, url, remove, enabled, placement, toLeads, toggl
         />
         <Icons 
             remove={(e) => remove(e)}
-            toLeads={(e) => toLeads(e)}
+            toLeads={() => toLeads()}
             toggleSettings={(e) => toggleSettings(e)}
         />
         <div className='placeholder'></div>
         <div className={`settings ${isOpen ? 'open' : 'closed'}`}>
             <label htmlFor='selector' > Position: 
-                <Selector id='selector' onChange={(v) => update('position', v)} options={['Top Left', 'Top Right', 'Bottom Left', 'Bottom Right']}/>
+                <Selector id='selector' value={location} onChange={(v) => update('location', v)} options={['Top Left', 'Top Right', 'Bottom Left', 'Bottom Right']}/>
             </label>
             <label htmlFor='message' > Message: 
                 <input id='message' type='text' onChange={(e) => update('message', e.target.value)} value={message} />
@@ -73,7 +73,7 @@ const Campaign = ({isOpen, name, url, remove, enabled, placement, toLeads, toggl
                 enabled ?
                 <Code
                     url={url}
-                    placement={placement}
+                    location={location}
                     message={message}
                 /> : null
             }

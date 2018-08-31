@@ -19,16 +19,15 @@ export default class Dashboard extends React.Component {
             changed: false,
             campaigns: []
         };
-    }
-
-    componentWillMount() {
         this.loadCampaigns()
             .then(campaigns => this.set(s => {
-                campaigns = campaigns.map(c => c.isOpen = false);
-                s.campaigns = campaigns;
-                console.log(campaigns);
+                s.campaigns = campaigns.map(c => {
+                    c.isOpen = false
+                    return c;
+                });
                 return s;
-            }));
+            }))
+            .catch(() => console.log('Unfortunate'));
     }
 
     check() {
@@ -81,13 +80,13 @@ export default class Dashboard extends React.Component {
         let state = callback(this.state);
         state.changed = true;
         return new Promise(resolve => {
-            this.setState(state, resolve())
+            this.setState(state, resolve)
         });
     }
 
     setCampaign(id, callback) {
         return this.set(s => {
-            const campaign = s.campaigns.filter(c => c.id === id);
+            const campaign = s.campaigns.find(c => c.id === id);
             const index = s.campaigns.indexOf(campaign);
             let newCampaign = callback(campaign);
             dao.put(newCampaign);
