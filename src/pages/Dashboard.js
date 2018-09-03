@@ -1,12 +1,8 @@
 import React from 'react';
-import Axios from 'axios';
-import Cookies from 'universal-cookie';
-import {Redirect} from 'react-router-dom';
 
 import Layout from '../components/Layout';
 import CardAdder from '../components/CardAdder';
 import CampaignList from '../components/CampaignList';
-import LeadList from '../components/LeadList';
 import dao from '../utils/Dao';
 
 export default class Dashboard extends React.Component {

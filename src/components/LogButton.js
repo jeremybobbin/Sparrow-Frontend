@@ -4,7 +4,7 @@ import { Route } from 'react-router-dom';
 import Context from './Context';
 
 const LogButton = props =>
-    <p>LogButton placeholder</p>;
+    <a>LogButton placeholder</a>;
 
 export default LogButton;
 

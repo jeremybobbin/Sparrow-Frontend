@@ -26,14 +26,26 @@ export default class Header extends React.Component {
                 <nav className='navbar'>
                     <div className='top-container'>
                         <Hamburger isOpen={this.state.isOpen} onClick={() => this.toggle()}/>
-                        <Username value={this.props.username} />
+                        <Username 
+                            value={this.props.username}
+                            redirect={(path) => this.props.redirect(path)}
+                        />
                     </div>
                     <div className={`link-list-container ${this.state.isOpen ? 'open' : 'closed'}`}>
                         <ul className='link-list'>
-                            <li><NavLink exact to="/dashboard">Dashboard</NavLink></li>
-                            <li><NavLink exact to="/leads">Leads</NavLink></li>
-                            <li><NavLink exact to="/register">Register</NavLink></li>
-                            <li><LogButton /></li>
+                            {
+                                this.props.isLoggedIn ?    
+                                    <React.Fragment>
+                                        <li><NavLink exact to="/dashboard">Dashboard</NavLink></li>
+                                        <li><NavLink exact to="/leads">Leads</NavLink></li>
+                                        <li><NavLink exact to="/logout">Log Out</NavLink></li>
+                                    </React.Fragment>
+                                    :
+                                    <React.Fragment>
+                                        <li><NavLink exact to="/login">Log In</NavLink></li>
+                                        <li><NavLink exact to="/register">Register</NavLink></li>
+                                    </React.Fragment>
+                            }
                         </ul>
                     </div>
                 </nav>

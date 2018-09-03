@@ -6,9 +6,11 @@ export default class Layout extends React.Component {
     render() {
         return (
             <React.Fragment>
-                <Header 
+                <Header
+                    redirect={(path) => this.props.redirect(path)}
                     message={this.props.message}
-                    username={this.props.username}    
+                    username={this.props.username}
+                    isLoggedIn={this.props.isLoggedIn}
                 />
                     <main className={this.props.className}>
                         {this.props.children}

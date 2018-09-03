@@ -8,6 +8,7 @@ const CampaignList = (props) => {
         name={c.name}
         url={c.url}
         leads={c.leads}
+        effect={c.effect}
         tracking={c.tracking}
         enabled={c.enabled}
         update={(k, v) => props.update(c.id, k, v)}

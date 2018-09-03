@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import Register from './pages/Register';
 import Leads from './pages/Leads';
 import Login from './pages/Login';
+import Logout from './pages/Logout';
 import Root from './pages/Root';
 import Layout from './components/Layout';
 import AuthenticatedRoute from './components/AuthenticatedRoute';
@@ -85,6 +86,7 @@ class App extends Component {
 				s.isLoggedIn = false;
 				s.message = 'You have been successfully logged out.';
 				s.username = null;
+				this.redirect('/login');
 				return s;
 			}))
 			.catch();
@@ -98,6 +100,7 @@ class App extends Component {
 				s.username = username;
 				return s;
 			}))
+			.then(() => this.redirect('/dashboard'))
 			.catch(e => this.set(s => {
 				s.message = e;
 				return s;
@@ -110,6 +113,8 @@ class App extends Component {
 				<Layout 
 					message={this.state.message}
 					username={this.state.username}
+					isLoggedIn={this.state.isLoggedIn}
+					redirect={(path) => this.redirect(path)}
 				>
 					{this.renderRedirect()}
 					<Route 
@@ -142,6 +147,13 @@ class App extends Component {
 						path="/leads"
 						render={(props) => <Leads {...props}/>}
 						component={Leads}
+					/>
+					<Route
+						exact path="/logout"
+						component={() => 
+							<Logout 
+								logOut={() => this.logOut()} 
+							/>}
 					/>
 				</Layout>
 			</BrowserRouter>

@@ -4,6 +4,7 @@ import Icon from './Icon';
 import FluidText from './FluidText';
 import Selector from './Selector';
 import Code from './Code';
+import EffectSelector from './EffectSelector';
 
 import '../css/components/campaign.css';
 
@@ -33,7 +34,7 @@ const Icons = props => icons.map((icon, index) => <Icon
     onClick={(e) => props[icon.func](e)}
 />);
 
-const Campaign = ({isOpen, name, url, remove, enabled, location, toLeads, toggleSettings, update, leads, message}) =>
+const Campaign = ({isOpen, name, url, remove, enabled, effect, location, toLeads, toggleSettings, update, leads, message}) =>
     <div className="campaign card">
         <FluidText
             className='name'
@@ -69,6 +70,12 @@ const Campaign = ({isOpen, name, url, remove, enabled, location, toLeads, toggle
             <label htmlFor='message' > Message: 
                 <input id='message' type='text' onChange={(e) => update('message', e.target.value)} value={message} />
             </label>
+
+            <EffectSelector
+                effect={effect}
+                onChange={(e) => update('effect', e.target.value)}
+            />
+            
             {
                 enabled ?
                 <Code

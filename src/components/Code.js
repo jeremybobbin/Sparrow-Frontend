@@ -1,7 +1,7 @@
 import React from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 
-let baseUrl = 'https://localhost:3001/';
+let baseUrl = 'https://freshpeeps.com/api/';
 
 export default class Code extends React.Component {
 
@@ -10,14 +10,14 @@ export default class Code extends React.Component {
         this.state = {
             copied: false,
         };
-        this.script = `<script>(function(w,n) { \
-            if (typeof(w[n]) == 'undefined'){ob=n+'Obj';w[ob]=[];w[n]=function(){w[ob].push(arguments);}; \
-            d=document.createElement('script');d.type = 'text/javascript';d.async=1; \
-            d.src='${baseUrl + 'script'}' ;x=document.getElementsByTagName('script')[0];x.parentNode.insertBefore(d,x);} \
-            })(window, 'sparrow', ''); \
-            sparrow('config', 'baseUrl', '${baseUrl}'); \
-            sparrow('config', 'https', ${props.url.includes('https') ? 1 : 0}); \
-            sparrow('config', 'track', ${props.tracking ? 1 : 0}); \
+        this.script = `<script>(function(w,n) {
+            if (typeof(w[n]) == 'undefined'){ob=n+'Obj';w[ob]=[];w[n]=function(){w[ob].push(arguments);};
+            d=document.createElement('script');d.type = 'text/javascript';d.async=1;
+            d.src='${baseUrl + 'script'}' ;x=document.getElementsByTagName('script')[0];x.parentNode.insertBefore(d,x);}
+            })(window, 'sparrow', '');
+            sparrow('config', 'baseUrl', '${baseUrl}');
+            sparrow('config', 'https', ${props.url.includes('https') ? 1 : 0});
+            sparrow('config', 'track', ${props.tracking ? 1 : 0});
             </script>`;
     }
   

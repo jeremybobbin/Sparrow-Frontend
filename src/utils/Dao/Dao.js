@@ -168,6 +168,7 @@ export default class Dao {
     }
 
     logOut() {
+        this.clearCookies();
         return this.request('post', 'user/logout');
     }
 
