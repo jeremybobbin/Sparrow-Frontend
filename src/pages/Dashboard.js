@@ -58,16 +58,9 @@ export default class Dashboard extends React.Component {
             }));
     }
 
-    toggle(id) {
+    toggle(id, prop) {
         this.setCampaign(id, c => {
-            c.enabled = !c.enabled;
-            return c;
-        }); 
-    }
-
-    toggleSettings(id) {
-        this.setCampaign(id, (c) => {
-            c.isOpen = !c.isOpen;
+            c[prop] = !c[prop];
             return c;
         });
     }
@@ -118,7 +111,7 @@ export default class Dashboard extends React.Component {
             <div className='dashboard'>
                 <CardAdder add={(name, url) => this.addCampaign(name, url)}/>
                 <CampaignList
-                    toggleSettings={id => this.toggleSettings(id)}
+                    toggle={(id, prop) => this.toggle(id, prop)}
                     campaigns={this.state.campaigns}
                     remove={id => this.removeCampaign(id)}
                     update={(id, k, v) => this.update(id, k, v)}
@@ -127,4 +120,53 @@ export default class Dashboard extends React.Component {
             </div>
         ); 
     }
+}
+
+
+#!/usr/bin/env node
+
+const http = require("http");
+const URL = require('url');
+
+const urls = process.argv.slice(2);
+const apiKey = "AIzaSyCE0iHYqqI_GvqAAncd1qqFb55t6_FKh5o";
+const apiUrl = "https://www.googleapis.com/urlshortener/v1/url?key=" + apiKey;
+
+shortenAll(urls)
+    .then(r => r.forEach(a => console.log(a)))
+    .catch(err => console.log(err));
+
+
+function shorten(longUrl) {
+    return new Promise((resolve, reject) => {
+        const method = "POST";
+        const hostname = 'www.googleapis.com'
+        const path = '/urlshortener/v1/url?key=' + apiKey;
+        const headers = {"Content-Type": "application/json"};
+        const ecdhCurve = 'auto'
+        const options = {method,hostname,path,headers, ecdhCurve};
+
+        const req = http.request(options, (res) => {
+            const chunks = [];
+
+            res.on("data", (chunk) => {
+                chunks.push(chunk);
+            });
+
+            res.on("end", () => resolve(chunks));
+        });
+
+        req.on('error', reject);
+        req.write(JSON.stringify({ longUrl }));
+        req.end();
+    });
+}
+
+async function shortenAll(urls) {
+	const shortUrls = [];
+	for (const url of urls) {
+            const shortUrl = await shorten(url);
+            shortUrls.push(shortUrl.toString());
+	}
+	return shortUrls;
 }

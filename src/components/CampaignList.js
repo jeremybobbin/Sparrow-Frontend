@@ -7,16 +7,15 @@ const CampaignList = (props) => {
         key={index}
         name={c.name}
         url={c.url}
-        leads={c.leads}
+        leadCount={c.leads}
         effect={c.effect}
         tracking={c.tracking}
-        enabled={c.enabled}
+        isEnabled={c.enabled}
         update={(k, v) => props.update(c.id, k, v)}
-        isOpen={c.isOpen}
         location={c.location}
         message={c.message}
         remove={() => props.remove(c.id)}
-        toggleSettings={() => props.toggleSettings(c.id)}
+        toggle={prop => props.toggle(c.id, prop)}
         toLeads={() => props.toLeads(c.id)}
     />))
 }
