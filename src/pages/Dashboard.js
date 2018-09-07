@@ -2,7 +2,6 @@ import React from 'react';
 
 import CardAdder from '../components/CardAdder';
 import CampaignList from '../components/CampaignList';
-import { Injector } from '../components/Context';
 
 export default class Dashboard extends React.Component {
     constructor(props) {
@@ -26,9 +25,7 @@ export default class Dashboard extends React.Component {
         return (
             <div className='dashboard'>
                 <CardAdder add={(name, url) => this.addCampaign(name, url)}/>
-                <Injector>
-                    <CampaignList/>
-                </Injector>
+                <CampaignList/>
             </div>
         ); 
     }

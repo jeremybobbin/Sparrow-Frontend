@@ -15,9 +15,10 @@ export default class Dao {
     request(method = 'get', path = '', data = {}, headers = {}) {
         const url = this.url + path;
 
-        headers.session = this.getSession();
-        headers.token = this.getToken();
+        headers['Session'] = this.getSession();
+        headers['X-CSRF-Token'] = this.getToken();
 
+        console.log(data);
         return Axios({method, url, data, headers})
             .then(res => {
 
@@ -86,17 +87,15 @@ export default class Dao {
     }
 
     logIn(username, password) {
-
         const requestArgs =
             username && password ?
                 ['user/login', {username, password}]
                 :
                 ['user/info'];
             
-
         return this.request('post', ...requestArgs)
             .then(response => {
-
+                console.log(response);
                 const {session, token, username, email} = response.data;
                 this.setCookies(session, token);
 

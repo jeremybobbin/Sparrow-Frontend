@@ -1,5 +1,6 @@
 import React from 'react';
 import {NavLink} from 'react-router-dom';
+import Message from '../../Message';
 
 import './navbar.css';
 
@@ -17,6 +18,7 @@ export default class Header extends React.Component {
     }
 
     render() {
+        
         return (
             <header>
                 <nav className='navbar'>

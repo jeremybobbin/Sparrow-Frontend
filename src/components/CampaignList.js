@@ -1,23 +1,23 @@
 import React from 'react';
 import Campaign from './Campaign';
+import {Inject} from './Context';
+import {InjectCampaign} from './Context';
 
-const CampaignList = (props) => {
-    console.log(props);
-    return props.campaigns === undefined ? null : (props.campaigns.map((c, index) => <Campaign
-        id={c.id}
-        key={index}
-        name={c.name}
-        url={c.url}
-        leadCount={c.leads}
-        effect={c.effect}
-        tracking={c.tracking}
-        isEnabled={c.enabled}
-        update={(k, v) => props.update(c.id, k, v)}
-        location={c.location}
-        message={c.message}
-        remove={() => props.remove(c.id)}
-        toggle={prop => props.toggle(c.id, prop)}
-        toLeads={() => props.toLeads(c.id)}
-    />))
-}
-export default CampaignList;
+const CampaignList = ({campaigns, update, remove, toggle}) =>
+    campaigns.map((campaign, index) =>
+        <Campaign
+            {...campaign}
+            key={index}
+            update={(k, v) => update(campaign.id, k, v)}
+            remove={() => remove(campaign.id)}
+            toggle={key => toggle(campaign.id, key)}
+        />);
+
+
+
+export default Inject(CampaignList, 'campaigns', 'toggle', 'remove', 'update');
+
+
+
+
+

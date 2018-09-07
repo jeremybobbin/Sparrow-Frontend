@@ -1,13 +1,14 @@
 import React from 'react';
 
+import {Inject} from '../components/Context';
 import Form from '../components/Form';
 
 import '../css/routes/login.css';
 
-const Login = ({submitHandler}) =>
+const Login = ({logIn}) =>
         <Form
             buttonText='Log In'
-            submitHandler={submitHandler}
+            submitHandler={(username, password) => logIn(username, password)}
             inputs={[
                 {
                     label: 'Username: ',
@@ -21,4 +22,4 @@ const Login = ({submitHandler}) =>
             ]}
         />;
     
-export default Login;
+export default Inject(Login, 'logIn');

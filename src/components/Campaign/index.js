@@ -13,7 +13,7 @@ export default class Campaign extends React.Component {
         };
     }
 
-    toggleSettings() {
+    open() {
         const isOpen = !this.state.isOpen;
         this.setState({ isOpen });
     }
@@ -47,7 +47,7 @@ export default class Campaign extends React.Component {
                 <Sidebar
                     remove={() => remove(id)}
                     toLeads={() => toLeads(id)}
-                    toggleSettings={() => this.toggleSettings()}
+                    toggleSettings={() => this.open()}
                     toggleSwitch={() => toggle('isEnabled')}
                     isOn={isEnabled}
                 />
@@ -65,4 +65,3 @@ export default class Campaign extends React.Component {
     }
 }
 
-//{remove, toLeads, toggleSettings, toggleSwitch, isOn}

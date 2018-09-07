@@ -8,21 +8,27 @@ import dao from '../utils/Dao';
 const Context = React.createContext();
 
 
-export const Injector = (Component) => {
-    return (props) => {
-        <Context.Consumer>
-             {(context) => 
-                <Component 
-                    {...props}
-                    context={context} />
-             }}
-        </Context.Consumer>
-    }
- }
-
-
 // Cooldown time on this.update() in milliseconds.
-const cooldown = 500;
+const cooldown = 1000;
+
+
+const {Consumer} = Context;
+
+export const Inject = (Component, ...propsToInject) => {
+    return (props) => 
+        <Consumer>
+             {(context) => {
+
+                const filteredContext = {};
+                propsToInject.forEach(prop => {
+                    filteredContext[prop] = context[prop];
+                });
+
+                return <Component {...props} {...filteredContext} />
+             }}
+        </Consumer>;
+}   
+
 
 export class Provider extends React.Component {
 
@@ -32,7 +38,8 @@ export class Provider extends React.Component {
 
         // Determines whether campaigns can be updated.
         this.isOnCooldown = false;
-        
+
+        this.timeoutIsSet = false;
 
         // Array of campaign id's which haven't been updated with the API.
         this.idsOfAlteredCampaigns = [];
@@ -59,6 +66,7 @@ export class Provider extends React.Component {
     }
 
     toggle(campaignId, prop) {
+        this.alteredCampaign(campaignId);
         this.set(state => {
             const campaign = this.getCampaignById(campaignId, state);
             campaign[prop] = !campaign[prop];
@@ -66,7 +74,19 @@ export class Provider extends React.Component {
     }
 
     update(campaignId, k, v) {
-        if(!this.canUpdate(campaignId)) return;
+        this.alteredCampaign(campaignId);
+        this.set(state => {
+            const campaign = this.getCampaignById(campaignId, state)
+            campaign[k] = v;
+        });
+
+    }
+
+    alteredCampaign(id) {
+        if(!this.idsOfAlteredCampaigns.includes(id))
+            this.idsOfAlteredCampaigns.push(id);
+        
+        this.push();
     }
 
     post(name, url) {
@@ -84,27 +104,33 @@ export class Provider extends React.Component {
         );
     }
 
+    onLogInSuccess() {
+        
+    }
+
 
 
     logIn(usernameAttempt, password) {
+        console.log('Log In called');
 
         return dao.logIn(usernameAttempt, password)
-            .then(userInfo => this.set(({username, email, isLoggedIn}) => {
+            .then(userInfo => {
+                this.set(({username, email, isLoggedIn, message}) => {
+                    message = 'You have been logged in successfully.';
+                    username = userInfo.username;
+                    email = userInfo.email;
 
-                username = userInfo.username;
-                email = userInfo.email;
-
-                isLoggedIn = true;
-
-            }))
+                    isLoggedIn = true;
+                });
+            })
             .catch(({response}) => this.set(({isLoggedIn, message}) => {
                 let status;
                 if(
                     typeof response === 'object' &&
                     response.hasOwnProperty('status')
                 ) {
-                    status = response.status;
-                }
+                    status = response.status
+                };
 
                 isLoggedIn = false;
                 message = 'There was an issue connedong to the server.';
@@ -149,27 +175,23 @@ export class Provider extends React.Component {
         return campaigns;
     }
 
-    canUpdate(campaignId) {
-        if(this.isOnCooldown) {
-            this.idsOfAlteredCampaigns.push(campaignId);
-            return false;
-        }
-
-        this.isOnCooldown = true;
-        this.timout = setTimeout(() => {
-            this.isOnCooldown = false;
-        }, cooldown);
-
-        return true;
-    }
-
 
     // Asyncronously update Sparrow API with altered campaigns
-    pushChangedCampaigns() {
-        const campaigns = this.getAlteredCampaigns();
-        return Promise.all(campaigns.map(campaign => {
+    push() {
+        if(this.timeoutIsSet) return;
 
-        }));
+        this.timeoutIsSet = true;
+
+        setTimeout(function() {
+            console.log('Pushing');
+            
+            this.timeoutIsSet = false;
+            
+            const campaigns = this.getAlteredCampaigns();
+            Promise.all(campaigns.map(campaign => 
+                dao.put(campaign))
+            );
+        }.bind(this), cooldown);
     }
 
     // Gets state reference and passes it to the callback.
@@ -203,24 +225,24 @@ export class Provider extends React.Component {
 
     render() {
         return (
-            <Context.Provider value={{ 
-                state: this.state,
+            <Context.Provider value={{
 
-                Campaigns: {
-                    update: (campaignId, k, v) => this.update(campaignId, k, v),
-                    post: (name, url) => this.post(name, url),
-                    remove: (campaignId) => this.remove(campaignId),
-                },
+                // Makes state accessable from the context object
+                ...this.state,
 
-                User: {
-                    logIn: (user, pass) => this.logIn(user, pass),
-                    logOut: () => this.logOut(),
-                    register: (user, email, pass) => this.register(user, email, pass),
-                    redirect: (url) => this.redirect(url),
-                    setMessage: (message) => this.setMessage(message)
-                }
+                post: (name, url) => this.post(name, url),
+                update: (campaignId, k, v) => this.update(campaignId, k, v),
+                toggle: (campaignId, prop) => this.toggle(campaignId, prop),
+                remove: (campaignId) => this.remove(campaignId),
+
+                logIn: (user, pass) => this.logIn(user, pass),
+                logOut: () => this.logOut(),
+                register: (user, email, pass) => this.register(user, email, pass),
+                
+                redirect: (url) => this.redirect(url),
+                
+                setMessage: (message) => this.setMessage(message)
             }}>
-                <h1 onClick={() => this.redirect('/dashboard')}>DEBUG</h1>
                 {this.renderRedirect()}
                 {this.props.children}
             </Context.Provider>
@@ -228,3 +250,15 @@ export class Provider extends React.Component {
     }
 }
 
+
+
+// {
+//     id: 2,
+//     name: 'Jer\'s Campaign',
+//     url: 'https://www.example.com',
+//     isEnabled: true,
+//     effect: 'fadeIn',
+//     location: 2,
+//     leadCount: 2151,
+//     message: 'Hello!'
+// }
