@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
-import { BrowserRouter, Switch, Route, Redirect } from 'react-router-dom'
+import { BrowserRouter, Route, Redirect } from 'react-router-dom';
+
+import  { Provider } from './components/Context';
+
 import Dashboard from './pages/Dashboard';
 import Register from './pages/Register';
 import Leads from './pages/Leads';
@@ -45,9 +48,6 @@ class App extends Component {
 		});
 	}
 
-	loadCampaigns() {
-		return dao.getCampaigns();
-	}
 
 	redirect(path) {
 		this.set(s => {
@@ -110,52 +110,54 @@ class App extends Component {
 	render() {
 		return (
 			<BrowserRouter>
-				<Layout 
-					message={this.state.message}
-					username={this.state.username}
-					isLoggedIn={this.state.isLoggedIn}
-					redirect={(path) => this.redirect(path)}
-				>
-					{this.renderRedirect()}
-					<Route 
-						exact path="/" 
-						component={Root}
-					/>
-					<AuthenticatedRoute
-						exact path='/dashboard'
-						isLoggedIn={!this.state.isLoggedIn}
-						component={() => 
-							<Dashboard
-								redirect={(path) => this.redirect(path)}
-								loadCampaigns={() => this.loadCampaigns()}
-							/>}
-					/>
-					<Route
-						exact path="/register"
-						component={Register}
-					/>
-					<Route
-						exact path="/login"
-						component={() => 
-							<Login
-								logIn={this.logIn}
-								isLoggedIn={this.isLoggedIn}
-								submitHandler={(u, p)=> this.logIn(u,p)}
-							/>}
-					/>
-					<AuthenticatedRoute
-						path="/leads"
-						render={(props) => <Leads {...props}/>}
-						component={Leads}
-					/>
-					<Route
-						exact path="/logout"
-						component={() => 
-							<Logout 
-								logOut={() => this.logOut()} 
-							/>}
-					/>
-				</Layout>
+				<Provider>
+					<Layout 
+						message={this.state.message}
+						username={this.state.username}
+						isLoggedIn={this.state.isLoggedIn}
+						redirect={(path) => this.redirect(path)}
+					>
+						{this.renderRedirect()}
+						<Route 
+							exact path="/" 
+							component={Root}
+						/>
+						<AuthenticatedRoute
+							exact path='/dashboard'
+							isLoggedIn={!this.state.isLoggedIn}
+							component={() => 
+								<Dashboard
+									redirect={(path) => this.redirect(path)}
+									loadCampaigns={() => this.loadCampaigns()}
+								/>}
+						/>
+						<Route
+							exact path="/register"
+							component={Register}
+						/>
+						<Route
+							exact path="/login"
+							component={() => 
+								<Login
+									logIn={this.logIn}
+									isLoggedIn={this.isLoggedIn}
+									submitHandler={(u, p)=> this.logIn(u,p)}
+								/>}
+						/>
+						<AuthenticatedRoute
+							path="/leads"
+							render={(props) => <Leads {...props}/>}
+							component={Leads}
+						/>
+						<Route
+							exact path="/logout"
+							component={() => 
+								<Logout 
+									logOut={() => this.logOut()} 
+								/>}
+						/>
+					</Layout>
+				</Provider>
 			</BrowserRouter>
 		);
 	}

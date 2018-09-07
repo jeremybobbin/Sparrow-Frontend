@@ -1,9 +1,4 @@
 import React from 'react';
-import Axios from 'axios';
-import Layout from '../components/Layout';
-
-import RegisterButton from '../components/RegisterButton';
-import Input from '../components/Input';
 import Form from '../components/Form';
 
 

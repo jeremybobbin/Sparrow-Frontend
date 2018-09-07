@@ -1,8 +1,5 @@
 import React from 'react';
 
-import {Consumer} from './Context';
-// import Input from './Input';
-import { timingSafeEqual } from 'crypto';
 
 import '../css/components/form.css';
 
@@ -45,14 +42,10 @@ export default class Form extends React.Component {
         />);
 
         return (
-            <Consumer>
-                {c => (
-                    <form className='form' onSubmit={(e) => this.handle(e)}>
-                        {inputs}
-                        <button type='submit'>{this.props.buttonText}</button>
-                    </form>
-                )}
-            </Consumer>
+            <form className='form' onSubmit={(e) => this.handle(e)}>
+                {inputs}
+                <button type='submit'>{this.props.buttonText}</button>
+            </form>
         );
     }
 }

@@ -2,7 +2,6 @@ import React from 'react';
 
 import dao from '../utils/Dao';
 import LeadList from '../components/LeadList';
-import Layout from '../components/Layout';
 
 export default class Leads extends React.Component {
     constructor(props) {
@@ -20,12 +19,14 @@ export default class Leads extends React.Component {
     set(callback) {
         let state = callback(this.state);
         return new Promise(resolve =>
-            this.setState(state, resolve()));
+            this.setState(state, resolve));
     }
 
     componentWillMount() {
         this.nextPage();
     }
+
+    
     componentDidMount() {
         window.addEventListener('scroll', (e) => this.handleScroll(e));
     }

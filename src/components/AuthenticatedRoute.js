@@ -1,7 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Route, Redirect } from 'react-router-dom';
-import Context from './Context';
-import CampaignList from './CampaignList';
+import {Route, Redirect} from 'react-router-dom';
 
 const dev = process.env.NODE_ENV === 'development';
 

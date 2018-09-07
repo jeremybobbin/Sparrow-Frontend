@@ -6,7 +6,6 @@ import EffectSelector from './EffectSelector';
 import Script from './Script';
 
 export default ({onChange, location, message, effect, isVisible}) => {
-    console.log('Location:   ' + location);
     return isVisible ? (
 
         <div className='settings'>
@@ -34,20 +33,21 @@ export default ({onChange, location, message, effect, isVisible}) => {
 
 
 const options = [
-    {label:'Top Left', value:'one'},
-    {label:'Top Right', value:'two'},
-    {label:'Bottom Left', value:'three'},
-    {label:'Bottom Right', value:'four'}
+    {value:0,label:"Top Left"},
+    {value:1,label:"Top Right"},
+    {value:2,label:"Bottom Left"},
+    {value:3,label:"Bottom Right"}
 ];
 
-const LocationSelector = ({value, onChange}) =>
+const LocationSelector = ({value, onChange}) => 
     <label htmlFor='location'>Placement<br/>
         <Select
             onChange={(e) => onChange(e.value)}
-            value={value}
+            value={options.find(o => o.value === value)}
             options={options}
         />
     </label>;
+
 
 const Message = ({onChange, value}) =>
     <label htmlFor='message' >Message<br/> 

@@ -2,6 +2,7 @@ import React from 'react';
 import Campaign from './Campaign';
 
 const CampaignList = (props) => {
+    console.log(props);
     return props.campaigns === undefined ? null : (props.campaigns.map((c, index) => <Campaign
         id={c.id}
         key={index}

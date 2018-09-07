@@ -1,117 +1,66 @@
 import Axios from 'axios';
 import Cookies from 'universal-cookie';
-import CampaignList from '../../components/CampaignList';
+
 
 const cookies = new Cookies();
 
 export default class Dao {
     constructor(url) {
-        window.setInterval(() => this.send(), 500);
         this.url = url;
-        this.oldCampaigns = [];
         this.campaigns = [];
     }
 
-    request(method = 'get', url = '', data = {}, headers = {}) {
-        url = this.url + url;
-        let cookies = this.getCookies();
-        headers = Object.assign(cookies, headers);
-        let opt = {method, url, data , headers};
-        return Axios(opt);
+
+    //Custom request method for appending authentication headers.
+    request(method = 'get', path = '', data = {}, headers = {}) {
+        const url = this.url + path;
+
+        headers.session = this.getSession();
+        headers.token = this.getToken();
+
+        return Axios({method, url, data, headers})
+            .then(res => {
+
+                if(res.status === 401)
+                    this.clearCookies();
+
+                return res;
+            });
     }
 
     getLeads(id, limit, offset) {
-        let url = 'leads?id=' + id + '&limit=' + limit + '&offset=' + offset;
+
+        const url = `leads?id=${id}&limit=${limit}&offset=${offset}`;
+
         return this.request('get', url);
     }
 
+
+    // Returns array of campaigns
     getCampaigns() {
         return this.request('get', 'campaigns')
-            .then(r => {
-                console.log('getCampaigns');
-                console.log(r);
-                return r.data === false ? null : r.data;
-            });
+            .then(({data}) => data);
     }
 
-    getIndex(campaign) {
-        let camp = this.campaigns.find(c => c.id === campaign.id)
-        let i = this.campaigns.indexOf(camp);
-        console.log('INDEX:   ' + i);
-        return (i === -1) ? false : i;
-    }
 
-    setOldCampaigns(campaigns) {
-        if(!Array.isArray(campaigns) || campaigns.length === 0) return;
-        let clone = campaigns.slice(0);
-        this.oldCampaigns = JSON.parse(JSON.stringify(clone));
-    }
-
-    getOldCampaign(campaign) {
-        return this.oldCampaigns.find(c => c.id === campaign.id);
-    }
-
-    removeCampaign(campaign) {
-        const i = this.getIndex(campaign); 
-        return this.campaigns.splice(i, 1)[0];
-    }
-
-    replace(campaign) {
-        const i = this.getIndex(campaign);
-        if(i === false) this.campaigns.push(campaign);
-        else this.campaigns[i] = campaign;
-    }
-
+    // It is put it <3
     put(campaign) {
-        let clone = Object.assign({}, campaign);
-        console.log('Clone: ');
-        console.log(clone)
-        this.replace(clone);
-    }
-    
-    send() {
-        let campsToSend = [];
-        if(this.campaigns.length > 0) {
-            this.campaigns.forEach(c => {
-                let oldC = this.getOldCampaign(c);
-                let newC = {};
-                if(oldC) {
-                    Object.keys(c)
-                        .filter(k => (c[k] !== oldC[k]))
-                        .forEach(k => newC[k] = c[k]);
-                } else newC = c;
-                if(Object.keys(newC).length > 0) {
-                    newC.id = c.id;
-                    campsToSend.push(newC);
-                }
-            });
-        }
-        if(Array.isArray(campsToSend) && campsToSend.length > 0 && campsToSend.every(c => Object.keys(c).length > 0)) {
-            this.oldCampaigns = this.campaigns;
-            this.campaigns = [];
-            campsToSend = campsToSend.map(c => {
-                let obj = {};
-                Object.keys(c)
-                    .filter(k => k !== 'leads' && k !== 'isOpen')
-                    .forEach(k => obj[k] = c[k]);
-                return obj;
-            });
-            return Promise.all(campsToSend.map(c => this.request('put', 'campaigns', c)));
-        }
+        return this.request('put', 'campaigns', campaign)
+            .then(({data}) => data.id);
     }
 
-    post(campaigns) {
-        return this.request('post', 'campaigns', campaigns);
+
+    // Takes name, url, returns new campaignID.
+    post(name, url) {
+        return this.request('post', 'campaigns', {name, url})
+            .then(({data}) => data.id);
     }
 
     delete(ids) {
-        console.log('ID\'s:   ');
-        if(!Array.isArray(ids)) ids = [ids]; 
-        return this.request('delete', 'campaigns', ids);
-    }
+        
+        if(!Array.isArray(ids)) ids = [ids];
 
-    getOldCampaigns() {
-        return this.oldCampaigns;
+        return this.request('delete', 'campaigns', ids);
     }
 
     clearCookies() {
@@ -119,21 +68,16 @@ export default class Dao {
         cookies.remove('token');
     }
 
-    cookiesAreSet() {
-        return Object.keys(this.getCookies()).length !== 0;
+    getSession() {
+        return cookies.get('session');
     }
 
-    getCookies() {
-        let session = cookies.get('session');
-        let token = cookies.get('token');
-        if(session && token) return {
-            'Session': session,
-            'X-CSRF-Token': token
-        }
-        else return {};
+    getToken() {
+        return cookies.get('token');
     }
 
-    setToken(token) {
+    setCookies(session, token) {
+        cookies.set('session', session);
         cookies.set('token', token);
     }
 
@@ -141,39 +85,38 @@ export default class Dao {
         cookies.set('session', session);
     }
 
-    setCookies(session, token) {
-        this.setSession(session);
-        this.setToken(token)
-    }
-
-    getUserInfo() {
-        return this.request('post', 'user/info');
-    }
-
     logIn(username, password) {
-        if(username === undefined && password === undefined) {
-            return this.getUserInfo()
-                .then(({data}) => {
-                    const {session, token, username} = data;
-                    if(session && token) this.setCookies(session, token);
-                    return username;
-                });
-        }
-        return this.request('post', 'user/login', {username, password})
-            .then(({data}) => {
-                this.setCookies(data.session, data.token);
-                return data.username
+
+        const requestArgs =
+            username && password ?
+                ['user/login', {username, password}]
+                :
+                ['user/info'];
+            
+
+        return this.request('post', ...requestArgs)
+            .then(response => {
+
+                const {session, token, username, email} = response.data;
+                this.setCookies(session, token);
+
+                return {username, email};
             });
-
     }
 
+    // Takes nothing, returns nothing. Always clears cookies
     logOut() {
-        this.clearCookies();
-        return this.request('post', 'user/logout');
+        return this.request('post', 'user/logout')
+            .finally(() => this.clearCookies());
     }
 
+
+    // Takes username, email and password, returns UNKNOWN
     register(username, email, password) {
-        return this.request('post', 'user/register', { username, email, password });
+        return this.request('post', 'user/register', { username, email, password })
+            .then(({ data }) => {
+                this.setSession(data.session)
+            });
     }
 
 }
