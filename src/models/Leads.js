@@ -63,7 +63,7 @@ module.exports = class Leads {
 
 
         const query = `SELECT ${possible.join(', ')} \
-            AS pages FROM leads \
+            FROM leads \
             ${join} ${where} ${order} ${limit};`
 
         console.log(query);
