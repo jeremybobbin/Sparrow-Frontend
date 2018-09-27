@@ -1,11 +1,10 @@
-const Dao = require('./Dao');
 const DataBase = require('./DataBase');
 const {database, user, password, socketPath} = require('../../config').mySql;
 
 
 const db = new DataBase(user, password, database);
 
-const init = [
+const initQuery = [
     'CREATE TABLE IF NOT EXISTS formNames ( \
         `campaignId` varchar(255) NOT NULL PRIMARY KEY, \
         `first` varchar(255), \
@@ -51,8 +50,14 @@ const init = [
         `value` VARCHAR(255) \
     );'
 ];
-const dao = new Dao(db);
 
-dao.init(init);
+const queryArray = initQuery
+    .map( string => db.query(string) );
 
-module.exports = dao; 
+Promise.all(queryArray)
+    .then(() => console.log('Successfully created tables.'))
+    .catch(err => console.log(err));
+
+
+
+module.exports = db; 

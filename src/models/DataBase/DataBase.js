@@ -55,10 +55,11 @@ module.exports = class DataBase {
             .then(() => this.queryObj && this.queryObj.isStream
                 ? connection.query(values).stream()
                 : new Promise((resolve, reject) => {
-                    connection.query(values, (err, results, fields) => 
-                        err
-                            ? reject(err)
-                            : resolve({results, fields})
+                    connection.query(values, (err, results) => 
+                        err ?
+                            reject(err)
+                            :
+                            resolve(results)
                     )})
             )
             .then(r => {

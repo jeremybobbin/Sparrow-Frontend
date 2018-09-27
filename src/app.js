@@ -4,11 +4,6 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const { URL } = require('url');
 
-const Campaigns = require('./models/Campaigns');
-const Fields = require('./models/Fields');
-const Leads = require('./models/Leads');
-const Lead = require('./models/Lead');
-
 const app = express();
 
 app.set('view engine', 'pug');

@@ -14,6 +14,8 @@ config.mySql = {
     password: get('DB_PASSWORD'),
 };
 
+config.apiUrl = get('API_URL');
+
 config.port = get('PORT');
 config.saltRounds = get('SALT_ROUNDS');
 

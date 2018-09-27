@@ -1,11 +1,11 @@
 const router = require('express').Router();
-const drup = require('../models/DrupalServer');
+const Users = require('../models/Users');
 
 router.post('/login', (req, res) => { 
     const {username, password} = req.body;
-    drup.logIn(username, password)
+    Users.logIn(username, password)
         .then(r => res.json(r))
-	.catch((err) => res.sendStatus(401));
+        .catch((err) => res.sendStatus(401));
 });
 
 router.post('/logout', (req, res) => {
