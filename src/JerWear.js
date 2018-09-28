@@ -8,12 +8,13 @@ module.exports.UserRoute = (req, res, next) => {
     if( req.userId ) return next();
 
     Users.authenticateTokens(session, token)
-        .then(({userId}) => {
-            req.userId = userId;
+        .then(({ userId }) => {
+            console.log('Loggin from "authenticateTokens()".');
+            req.userId = parseInt(userId);
             next();
         })
-        .catch(() => {
-            console.log('This is.');
+        .catch((err) => {
+            console.log('JerWear error.', err);
             res.status(401).json({"Error Message": "You are unauthorized."});
         });
 };

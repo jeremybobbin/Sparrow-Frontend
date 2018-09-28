@@ -6,7 +6,11 @@ module.exports = class Users {
     
     static register(name, email, pass) {
         return drup.getNewUserId(name, email, pass)
-            .then(({body}) => body)
+            .then(({body}) => {
+                if(!body)
+                    throw 'Authentication server did not return response body.';
+                return body.uid;
+            })
     }
 
     static logIn(name, pass) {
@@ -14,15 +18,20 @@ module.exports = class Users {
             .then(Users.handleInfo);
     }
 
-    static authenticateTokens(session, token) {
-        return drup.getUserInfoByTokens(session, token)
-            .then(({body}) => Users.handleInfo(body));
+    static logOut(session, token) {
+        return drup.destroySession(session, token);
     }
 
-    static handleInfo(body) {
-        console.log('Handling...');
-        console.log(body);
+    static authenticateTokens(session, token) {
+        return drup.getUserInfoByTokens(session, token)
+            .then(Users.handleInfo);
+    }
 
+    static handleInfo(response) {
+        const { body } = response;
+        
+        if(!body)
+            throw 'Authentication server did not return response body.';
 
         const { sessid, session_name, token, user } = body;
 

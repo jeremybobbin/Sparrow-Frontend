@@ -1,12 +1,24 @@
 const router = require('express').Router();
 
+const { UserRoute } = require('../JerWear');
 const Leads = require('../models/Leads');
+const Utils = require('../Utils');
 
+// GET /leads
+// GET /leads?id=120431 <-- that's a possible campaign ID.
+router.get('/', UserRoute, (req, res) => {
+    let { page, pageSize, orderParams, id } = req.query;
+    
+    if(typeof id === 'string') id = parseInt();
 
-router.get('/', (req, res) => {
-    Leads.get(req.query, req.userId)
-        .then(r => res.json(r))
-        .catch(e => console.log(e) && res.sendStatus(500));
+    [page, pageSize] = Utils.parseInt(page, pageSize);
+    
+
+    const { userId } = req;
+
+    Leads.getPage(userId, pageSize, page, orderParams, id)
+        .then(leads => res.json({ leads }))
+        .catch(err => res.status(500).json({ err }));
 });
 
 router.post('/', (req, res) => {

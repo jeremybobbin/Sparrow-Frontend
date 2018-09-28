@@ -7,9 +7,9 @@ const db = new DataBase(user, password, database);
 const initQuery = [
     'CREATE TABLE IF NOT EXISTS formNames ( \
         `campaignId` varchar(255) NOT NULL PRIMARY KEY, \
-        `first` varchar(255), \
-        `last` varchar(255), \
-        `email` varchar(255) \
+        `first` varchar(255) DEFAULT NULL, \
+        `last` varchar(255) DEFAULT NULL, \
+        `email` varchar(255) DEFAULT NULL\
     ); ',
     'CREATE TABLE IF NOT EXISTS formIds ( \
         `campaignId` varchar(255) NOT NULL PRIMARY KEY, \

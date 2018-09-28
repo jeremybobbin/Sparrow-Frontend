@@ -3,24 +3,23 @@ const Querier = require('./Querier');
 module.exports = class Widget {
 
 
-    static getWidgetText(url, random) {
+    static getSnippets(campaignId, random) {
 
-        return Querier.getCampaignId(url)
-            .then( ([{id}]) => Promise.all([
-                Querier.getLatestLeads(id, 20),
-                Querier.getCampaignMessage(id)
-            ]))
-            .then(([leads, [{message}]]) => {
+        return Promise.all([
+            Querier.getLatestLeads(campaignId, 20),
+            Querier.getCampaignMessage(campaignId)
+        ])
+        .then(([leads, [{message}]]) => {
 
-                const { first, last, city, time } = Widget.oneRandom(leads);
-                
-                return {
-                    message,
-                    leadSnippet: Widget.genMessage(first, last, city),
-                    timeSnippet: Widget.genTime(time)
-                };
+            const { first, last, city, time } = Widget.oneRandom(leads, random);
+            
+            return {
+                message,
+                leadSnippet: Widget.genMessage(first, last, city),
+                timeSnippet: Widget.genTime(time)
+            };
 
-            });
+        });
     }
 
     static genMessage(first, last, city) {

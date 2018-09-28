@@ -17,11 +17,23 @@ module.exports = class Leads {
     }
 
     static getPage(userId, pageSize, pageNumber, orderParams, campaignId) {
-        if(pageSize < 0 || pageSize > 100) {
-            throw `Invalid page size: ${pageSize}`;
+        console.log('\n\nCALLING FROM GET PAGE \n\n');
+
+        console.log('UserID===>', userId);
+        console.log(pageSize, pageNumber, campaignId);
+
+        const someAreInvalid = [userId, pageSize, pageNumber]
+            .some(val => typeof val !== 'number' || val < 0);
+
+        if(someAreInvalid) {
+            return Promise.reject('Page number and size must be integers.');
+        }
+        
+        if(pageSize < 1 || pageSize > 100) {
+            Promise.reject(`Invalid page size: ${pageSize}`);
         }
         if(pageNumber < 0) {
-            throw `Invalid page number: ${pageNumber}`;
+            Promise.reject(`Invalid page number: ${pageNumber}`);
         }
 
         return Querier.getLeadsPage(

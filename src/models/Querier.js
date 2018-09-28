@@ -79,10 +79,12 @@ module.exports = class Querier {
         );
     }
 
+    // User ID is redundent now but may be necessary later.
     static getLeadsPage(userId, pageSize, pageNumber, orderParams, campaignId) {
+        console.log('\n\n\n\nCalling from QUERIER \n\n\n\n');
         return db.query(
             `SELECT * FROM leads ${ 
-                Utils.where({userId, campaignId})
+                Utils.where({ campaignId })
             } ${
                 Utils.orderBy(orderParams)
             } ${
@@ -119,20 +121,16 @@ module.exports = class Querier {
     static setFormIds(campaignId, first, last, email) {
         return db.query(
             `INSERT INTO formIds ${
-                Utils.insertOrUpdate({ first, last, email })
-            } ${
-                Utils.where({ campaignId })
-            } ;`
+                Utils.insertOrUpdate({ campaignId, first, last, email })
+            };`
         );
     }
 
     static setFormNames(campaignId, first, last, email) {
         return db.query(
             `INSERT INTO formNames ${
-                Utils.insertOrUpdate({ first, last, email })
-            } ${
-                Utils.where({ campaignId })
-            } ;`
+                Utils.insertOrUpdate({ campaignId, first, last, email })
+            };`
         );
     }
 }

@@ -2,7 +2,7 @@ const Utils = require('../Utils');
 const Querier = require('./Querier');
 
 const attributes = [
-    `id`,`userId`,`name`,`url`,`isEnabled`,`tracking`,`message`,`delay`,`effect`,`location`,`counters`,`initialWait`
+    `name`,`url`,`isEnabled`,`tracking`,`message`,`delay`,`effect`,`location`,`counters`,`initialWait`
 ];
 
 module.exports = class Campaigns {
@@ -29,30 +29,29 @@ module.exports = class Campaigns {
     }
 
     static add(userId, name, url) {
-        Querier.addCampaign(userId, name, url)
-            .then(([{insertId}]) => {
-                if(!insertId) {
-                    console.log('Campaign\'s Insert ID is null');
-                }
-                return insertId;
-            });
+        return Querier.addCampaign(userId, name, url)
+            .then(({insertId}) => insertId);
     }
 
     static update(userId, campaignId, campaign) {
         if(!Campaigns.canHave(campaign))
-            throw 'Invalid campaign';
-
+            return Promise.reject('Invalid campaign');
         
+        if(typeof userId !== 'number' && typeof userId !== 'long')
+            return Promise.reject('Invalid User ID.');
+
+
         return Querier.alterCampaign(userId, campaignId, campaign)
     }
 
     static canHave(campaign) {
+        let canHave = true;
         Utils.forEach(campaign, (v, k) => {
             
             if(!attributes.includes(k))
-                return false;
+                canHave = false;
 
         });
-        return true;
+        return canHave;
     }
 }

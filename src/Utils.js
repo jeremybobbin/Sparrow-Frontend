@@ -101,7 +101,8 @@ class Utils {
             return `${k} ${v.toUpperCase()}`
         });
 
-        return ` ORDER BY ${params.join(', ')} `;
+        if(params.length) return ` ORDER BY ${params.join(', ')} `;
+        return '';
     }
 
     // {userId: 5, name: 'Ben'} --> WHERE userId = 5 AND campaignId = 'Ben'
@@ -121,8 +122,12 @@ class Utils {
             return `${k} = ${v}`;
         });
 
-        return ` WHERE ${params.join(' AND ')} `;
+        console.log(params);
 
+        if(params.length)
+            return ` WHERE ${params.join(' AND ')} `;
+
+        return '';
     }
 
     // {isTracking: true, name: 'New Thing'}
@@ -133,10 +138,11 @@ class Utils {
 
 
         Utils.forEach(object, (v, k) => {
-            if(typeof v === 'string') v = `'${v}'`;
-
-            keys.push(k);
-            values.push(v);
+            if(k) {
+                v = Utils.toSql(v);
+                keys.push(k);
+                values.push(v);
+            }
         });
 
         return ` (${keys.join(', ')}) VALUES (${values.join(', ')}) `;
@@ -162,6 +168,36 @@ class Utils {
         } ON DUPLICATE KEY UPDATE ${
             Utils.sqlSet(object)
         } `;
+    }
+
+    static hasKeys(objArray, keyArray) {
+        let hasKeys = true;
+
+        if(!objArray.every(obj => obj && typeof obj === 'object')) {
+            console.log('Object array has falsie values');
+            return false;
+        }
+        objArray.forEach(obj => {
+            keyArray.forEach(key => {
+                if(!obj.hasOwnProperty(key)) {
+                    hasKeys = false;
+                }
+            });
+        });
+        return hasKeys;
+    }
+
+    static toSql(...values) {
+        return values.map(v => {
+            if(v === null) return 'NULL';
+            if(typeof v === 'string') return '"' + v + '"';
+
+            return v;
+        });
+    }
+
+    static parseInt(...strings) {
+        return strings.map(s => parseInt(s));
     }
 
 }

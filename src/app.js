@@ -4,7 +4,10 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const { URL } = require('url');
 
+const Widget = require('./models/Widget');
+
 const app = express();
+
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
@@ -56,43 +59,9 @@ app.use(require('./routes'));
 
 app.get('/script', (req, res) => res.sendFile(__dirname + '/public/sparrow.js'));
 
-
-
-// Route for posting data about form fields
-app.post('/data', (req, res) => {
-    if(!req.body.fields) return;
-
-    const {firstname, lastname, email} = req.body.fields;
-    Fields.set(url, firstname.name, lastname.name, email.name, firstname.id, lastname.id, email.id)
-        .then(r => res.json(r))
-        .catch(err => res.json(err));
-});
-
-
-// Route for getting data about the form fields
-app.get('/data', (req, res) => {
-    Fields.get(req.query.url)
-            .then(r => res.json(r))
-            .catch(r => res.json(r));
-});
-
-// Route to render widget.
-app.get('/widget', (req, res) => {
-    Leads.getOneFormatted(req.query.url, req.query.r)
-        .then(({leadString, time, message}) => {
-            res.render('widget.pug', {leadString, message, time});
-        })
-        .catch(err => console.log(err));
-});
-
 app.get('/throw', (req, res) => {
-    throwError();
+    throw 'Uncaught exception on main thread.';
 });
-
-function throwError() {
-    let err= new Error('This is an error.');
-    throw err;
-}
 
 
 module.exports = app;
