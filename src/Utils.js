@@ -43,6 +43,13 @@ class Itterable {
 
 class Utils {
 
+    static print(namesToValues) {
+        Utils.forEach(namesToValues, (v, k, i) => {
+            console.log('\nVariable:', k);
+            console.log('Values:',v,'\n\n');
+        });
+    }
+
     static empty(object) {
         return Utils.getEmpty(Utils.typeOf(object));
     }

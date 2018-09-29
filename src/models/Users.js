@@ -1,5 +1,6 @@
 const drup = require('./DrupalServer');
-
+const Utils = require('../Utils');
+const Querier = require('./Querier');
 
 module.exports = class Users {
     
@@ -27,9 +28,19 @@ module.exports = class Users {
             .then(Users.handleInfo);
     }
 
+    static billingInfo(userId) {
+        if(!userId)
+            return Promise.reject('Cannot get billing info without User ID.');
+        
+        return Querier.getBillingInfo(userId);
+    }
+
     static handleInfo(response) {
+        Utils.print({ response });
         const { body } = response;
         
+        Utils.print({ body });
+
         if(!body)
             throw 'Authentication server did not return response body.';
 
@@ -40,8 +51,10 @@ module.exports = class Users {
         
         const { uid, name, mail, roles } = user;
 
+
+        Utils.print({ uid, name, mail, roles });
         if(!(uid && name && mail && roles))
-            throw 'Authentication server did not return tokens.';
+            throw 'Authentication server did user information.';
         
 
         console.log('UserID: ' + uid);

@@ -1,63 +1,70 @@
-const DataBase = require('./DataBase');
-const {database, user, password, socketPath} = require('../../config').mySql;
+const {createPool} = require('mysql');
+const events = ['aquire', 'connection', 'enqueue', 'release'];
+const Query = require('./Query');
 
+module.exports = class DataBase {
+    constructor(user, password, database) {
+        this.callbacks = new Map(events.map(e => [e, []]));
+        this.pool = createPool({user, password, database, insecureAuth: true });
+        this.queryObj;
+        this.init();
+    }
 
-const db = new DataBase(user, password, database);
+    init() {
+        events.forEach(e => {
+            this.pool.on(e, v => {
+                this.callbacks.get(e).forEach(f => f(v))
+            });
+        });
+    }
 
-const initQuery = [
-    'CREATE TABLE IF NOT EXISTS formNames ( \
-        `campaignId` varchar(255) NOT NULL PRIMARY KEY, \
-        `first` varchar(255) DEFAULT NULL, \
-        `last` varchar(255) DEFAULT NULL, \
-        `email` varchar(255) DEFAULT NULL\
-    ); ',
-    'CREATE TABLE IF NOT EXISTS formIds ( \
-        `campaignId` varchar(255) NOT NULL PRIMARY KEY, \
-        `first` varchar(255), \
-        `last` varchar(255), \
-        `email` varchar(255) \
-    ); ',
-    'CREATE TABLE IF NOT EXISTS campaigns ( \
-        `id` INT NOT NULL AUTO_INCREMENT, \
-        `userId` INT NOT NULL, \
-        `name` VARCHAR(255) NOT NULL, \
-        `url` VARCHAR(255) NOT NULL, \
-        `isEnabled` BOOLEAN DEFAULT TRUE, \
-        `tracking` BOOLEAN DEFAULT TRUE, \
-        `message` VARCHAR(255), \
-        `delay` TINYINT NOT NULL DEFAULT 3, \
-        `effect` VARCHAR(255) DEFAULT "fade" , \
-        `location` TINYINT NOT NULL DEFAULT 0, \
-        `counters` BOOLEAN NOT NULL DEFAULT FALSE, \
-        `initialWait` TINYINT DEFAULT 3, \
-        PRIMARY KEY(id) \
-    ); ',
-    'CREATE TABLE IF NOT EXISTS leads ( \
-        `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY, \
-        `campaignId` int NOT NULL, \
-        `ip` varchar(255) NOT NULL, \
-        `first` varchar(255), \
-        `last` varchar(255), \
-        `email` varchar(255), \
-        `city` varchar(255), \
-        `region` varchar(255), \
-        `country` varchar(255), \
-        `time` DATETIME DEFAULT CURRENT_TIMESTAMP, \
-        `soundId` INT NOT NULL \
-    ); ',
-    'CREATE TABLE IF NOT EXISTS sound ( \
-        `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, \
-        `value` VARCHAR(255) \
-    );'
-];
+    on(event, callback) {
+        this.callbacks.get(event).push(callback);
+    }
 
-const queryArray = initQuery
-    .map( string => db.query(string) );
+    getConnection() {
+        return new Promise((resolve, reject) => {
+            this.pool.getConnection((err, conn) => {
+                err ? reject(err) : resolve(conn);
+            });
+        });
+    }
 
-Promise.all(queryArray)
-    .then(() => console.log('Successfully created tables.'))
-    .catch(err => console.log(err));
+    createQuery(string, ...args) {
+        this.queryObj = new Query(string, ...args);
+        return args
+            ? this.query()
+            : this.queryObj;
+    }
 
+    queryPromise(conn, values) {
+        return new Promise((resolve, reject) => {
+            conn.query(values, (err, results, fields) => {
+                if(err) return reject(err);
+                resolve({results, fields});
+            })
+        })
+    }
 
-
-module.exports = db; 
+    query(sql, args) {
+        let connection;
+        this.queryObj = new Query(sql, args);
+        const values = this.queryObj ? this.queryObj.getValues() : {sql};
+        return this.getConnection()
+            .then(c => connection = c)
+            .then(() => this.queryObj && this.queryObj.isStream
+                ? connection.query(values).stream()
+                : new Promise((resolve, reject) => {
+                    connection.query(values, (err, results) => 
+                        err ?
+                            reject(err)
+                            :
+                            resolve(results)
+                    )})
+            )
+            .then(r => {
+                connection.release();
+                return r;
+            });
+    }
+}

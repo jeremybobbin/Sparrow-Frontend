@@ -1,5 +1,5 @@
 const Utils = require('../Utils');
-const db = require('./DataBase');
+const { db, bDb } = require('./Dao');
 
 module.exports = class Querier {
 
@@ -96,7 +96,7 @@ module.exports = class Querier {
     static getLatestLeads(campaignId, limit = 20) {
         return db.query(
             `SELECT * FROM leads ${
-                where({ campaignId })
+                Utils.where({ campaignId })
             } ORDER BY time LIMIT ${limit};`
         );
     }
@@ -132,5 +132,19 @@ module.exports = class Querier {
                 Utils.insertOrUpdate({ campaignId, first, last, email })
             };`
         );
+    }
+
+    static getBillingInfo(uid) {
+        return bDb.query(`
+            SELECT o.order_status AS status, o.order_total AS total, \
+            o.created AS created, o.payment_method AS method \
+            rs.next_interval AS next \
+            FROM uc_orders AS o \
+            JOIN uc_order_products AS op ON o.order_id = op.order_id \
+            JOIN uc_products AS p ON op.nid = p.nid \
+            JOIN uc_product_features AS pf ON p.nid = pf.nid \
+            JOIN uc_recurring_schedule AS rs ON pf.pfid = rs.pfid \
+            ${Utils.where({ uid })}  
+        `);
     }
 }
