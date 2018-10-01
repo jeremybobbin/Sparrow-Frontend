@@ -8,8 +8,9 @@ module.exports.UserRoute = (req, res, next) => {
     if( req.userId ) return next();
 
     Users.authenticateTokens(session, token)
-        .then(({ userId }) => {
+        .then(({ userId, roles }) => {
             console.log('Loggin from "authenticateTokens()".');
+            req.roles = roles;
             req.userId = parseInt(userId);
             next();
         })

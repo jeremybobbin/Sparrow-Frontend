@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const Users = require('../models/Users');
+const { UserRoute } = require('../JerWear');
 
 router.post('/login', (req, res) => { 
     const {username, password} = req.body;
@@ -26,6 +27,19 @@ router.post('/register', (req, res) => {
     drup.register(username, email, password)
         .then(sessionInfo => res.json(sessionInfo))
         .catch(err => res.status(500).send(err.response.statusText));
+});
+
+router.get('/account', UserRoute, (req, res) => {
+    
+    const { userId, roles } = req;
+    Users.billingInfo(userId)
+        .then(billingInfo => {
+            res.json({ billingInfo, roles });
+        })
+        .catch(error => {
+            console.log('Error on /account:', err);
+            res.status(500).json({ error });
+        });
 });
 
 

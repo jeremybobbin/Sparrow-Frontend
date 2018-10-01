@@ -50,7 +50,7 @@ router.delete('/:id', (req, res) => {
     const { id } = req.params;
     const { userId } = req;
 
-    return Campaigns.delete(userId, id)
+    return Campaigns.remove(userId, id)
         .then(() => res.sendStatus(200))
         .catch(err => res.status(500).json(err));
 });

@@ -36,9 +36,22 @@ module.exports = class Leads {
             Promise.reject(`Invalid page number: ${pageNumber}`);
         }
 
-        return Querier.getLeadsPage(
-            userId, pageSize, pageNumber, orderParams, campaignId
-        );
+        return Promise.all([
+            Querier.getLeadsPage(userId, pageSize, pageNumber, orderParams, campaignId),
+            Querier.countLeadPages(userId, pageSize, campaignId)
+        ])
+        .then(([leads, pageCount]) => {
+            console.log('\n\nResults from getPage:');
+            console.log('PageCount:',pageCount);
+            console.log('Rows:',leads);
+            return {
+                leads,
+                pages: pageCount[0]['pages']
+            };
+        })
+        .catch(err => {
+            console.log('\nError from Leads.getPage:', err, '\n\n\n');
+        });
     }
 
     static locate(ip) {

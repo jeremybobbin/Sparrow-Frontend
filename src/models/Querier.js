@@ -68,7 +68,7 @@ module.exports = class Querier {
     static countLeadPages(userId, pageSize, campaignId) {
         return db.query(
             `SELECT CEILING(COUNT(1) / ${pageSize}) AS pages FROM leads ${
-                Utils.where({userId, campaignId})
+                Utils.where({ campaignId })
             };`
         );
     }
@@ -135,16 +135,16 @@ module.exports = class Querier {
     }
 
     static getBillingInfo(uid) {
-        return bDb.query(`
-            SELECT o.order_status AS status, o.order_total AS total, \
-            o.created AS created, o.payment_method AS method \
+        return bDb.query(
+            `SELECT o.order_status AS status, o.order_total AS total, \
+            o.created AS created, o.payment_method AS method, \
             rs.next_interval AS next \
             FROM uc_orders AS o \
             JOIN uc_order_products AS op ON o.order_id = op.order_id \
             JOIN uc_products AS p ON op.nid = p.nid \
             JOIN uc_product_features AS pf ON p.nid = pf.nid \
             JOIN uc_recurring_schedule AS rs ON pf.pfid = rs.pfid \
-            ${Utils.where({ uid })}  
-        `);
+            ${Utils.where({ uid })} \
+            ORDER BY o.created DESC;`);
     }
 }

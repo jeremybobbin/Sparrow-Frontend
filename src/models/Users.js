@@ -32,7 +32,13 @@ module.exports = class Users {
         if(!userId)
             return Promise.reject('Cannot get billing info without User ID.');
         
-        return Querier.getBillingInfo(userId);
+        return Querier.getBillingInfo(userId)
+            .then(results => {
+                if(!results) throw 'No Billing info.';
+                console.log('\n\nResults from billingInfo query:');
+                console.log(results, '\n\n');
+                return results;
+            });
     }
 
     static handleInfo(response) {

@@ -9,7 +9,7 @@ const Utils = require('../Utils');
 router.get('/', UserRoute, (req, res) => {
     let { page, pageSize, orderParams, id } = req.query;
     
-    if(typeof id === 'string') id = parseInt();
+    if(typeof id === 'string') id = parseInt(id);
 
     [page, pageSize] = Utils.parseInt(page, pageSize);
     
@@ -17,7 +17,7 @@ router.get('/', UserRoute, (req, res) => {
     const { userId } = req;
 
     Leads.getPage(userId, pageSize, page, orderParams, id)
-        .then(leads => res.json({ leads }))
+        .then(({pages, leads}) => res.json({ pages, leads }))
         .catch(err => res.status(500).json({ err }));
 });
 

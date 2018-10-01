@@ -64,4 +64,4 @@ Promise.all(queryArray)
 module.exports.db = db
 
 //Short for billingDB
-module.exports.bDb = new DataBase('freshpee_drup', user, password, socketPath);
+module.exports.bDb = new DataBase(user, password, 'freshpee_drup');
