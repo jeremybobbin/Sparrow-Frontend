@@ -7,7 +7,16 @@ router.post('/login', (req, res) => {
 
     Users.logIn(username, password)
         .then(r => res.json(r))
-        .catch((err) => res.sendStatus(401));
+        .catch((err) => res.status(401).json({ err }));
+});
+
+router.post('/info', UserRoute, (req, res) => { 
+    const { session, token, username, email } = req.userInfo;
+
+    if(session && token && username && email)
+        res.json({ session, token, username, email });
+    else
+        res.status(401).json({ error: "/user/info" });
 });
 
 router.post('/logout', (req, res) => {
@@ -32,6 +41,7 @@ router.post('/register', (req, res) => {
 router.get('/account', UserRoute, (req, res) => {
     
     const { userId, roles } = req;
+
     Users.billingInfo(userId)
         .then(billingInfo => {
             res.json({ billingInfo, roles });

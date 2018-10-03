@@ -61,7 +61,7 @@ module.exports = class Querier {
 
     static addLead(campaignId, lead) {
         return db.query(
-            `INSERT INTO leads ${Utils.sqlValues({campaignId, ...lead})}`
+            `INSERT INTO leads ${Utils.sqlValues({campaignId, ...lead})};`
         );
     }
     
@@ -137,14 +137,28 @@ module.exports = class Querier {
     static getBillingInfo(uid) {
         return bDb.query(
             `SELECT o.order_status AS status, o.order_total AS total, \
-            o.created AS created, o.payment_method AS method, \
-            rs.next_interval AS next \
+            o.created AS created, o.payment_method AS method \
             FROM uc_orders AS o \
             JOIN uc_order_products AS op ON o.order_id = op.order_id \
             JOIN uc_products AS p ON op.nid = p.nid \
             JOIN uc_product_features AS pf ON p.nid = pf.nid \
-            JOIN uc_recurring_schedule AS rs ON pf.pfid = rs.pfid \
-            ${Utils.where({ uid })} \
+            ${Utils.where({ 'o.uid': uid })} \
             ORDER BY o.created DESC;`);
     }
+
+    static log(ip, message) {
+        if(!ip) ip = "NULL";
+        if(!message) message = "NULL";
+        return db.query(
+            `INSERT INTO logs (ip, message) VALUES ("${ip}", "${message}");`
+        );
+    }
+
+    static getLogs() {
+        return db.query(
+            `SELECT * FROM logs ORDER BY time DESC LIMIT 50;`
+        );
+    }
+
+
 }

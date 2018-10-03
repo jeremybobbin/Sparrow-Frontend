@@ -46,6 +46,12 @@ const initQuery = [
     'CREATE TABLE IF NOT EXISTS sound ( \
         `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, \
         `value` VARCHAR(255) \
+    );',
+    'CREATE TABLE IF NOT EXISTS logs ( \
+        `id` INT NOT NULL AUTO_INCREMENT PRIMARY KEY, \
+        `ip` varchar(255), \
+        `message` TEXT, \
+        `time` DATETIME DEFAULT CURRENT_TIMESTAMP \
     );'
 ];
 

@@ -11,13 +11,19 @@ router.param('id', (req, res, next, id) => {
 });
 
 router.get('/', UserRoute, (req, res) => {
-    const { userId } = req;
+    const { userId, roles } = req;
 
-    console.log('UserID -> ', userId);
-
-	Campaigns.belongingTo(userId)
-        .then(campaigns => res.json({ campaigns }))
-        .catch(err => res.status(500).send(err));
+    if(roles["4"]) {
+        Campaigns.belongingTo(userId)
+            .then(campaigns => res.json({ campaigns }))
+            .catch(err => res.status(500).send(err));
+    } else {
+        console.log("Unauthorized call to '/campaigns':", roles);
+        res.status(402).json({
+            error: "You must be subscribed"
+        });
+    }
+     
 });
 
 router.get('/:id', (req, res) => {
@@ -40,10 +46,13 @@ router.get('/:id', (req, res) => {
 router.put('/:id', UserRoute, (req, res) => {
     const { id } = req.params;
     const { userId, body } = req;
+
+    delete body.userId;
+    delete body.id;
     
     Campaigns.update(userId, id, body)
         .then(() => res.sendStatus(200))
-        .catch(() => res.sendStatus(500));
+        .catch((err) => res.status(500).json({ err }));
 });
 
 router.delete('/:id', (req, res) => {
