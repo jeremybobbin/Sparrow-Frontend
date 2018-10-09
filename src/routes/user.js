@@ -11,10 +11,11 @@ router.post('/login', (req, res) => {
 });
 
 router.post('/info', UserRoute, (req, res) => { 
-    const { session, token, username, email } = req.userInfo;
+    const { session, username, email } = req.userInfo;
+    const { roles } = req;
 
-    if(session && token && username && email)
-        res.json({ session, token, username, email });
+    if(session && username && email)
+        res.json({ session, username, email, roles });
     else
         res.status(401).json({ error: "/user/info" });
 });

@@ -59,6 +59,21 @@ module.exports = class Querier {
 
 
 
+    /*
+        'CREATE TABLE IF NOT EXISTS leads ( \
+        `id` int NOT NULL AUTO_INCREMENT PRIMARY KEY, \
+        `campaignId` int NOT NULL, \
+        `ip` varchar(255) NOT NULL, \
+        `first` varchar(255), \
+        `last` varchar(255), \
+        `email` varchar(255), \
+        `city` varchar(255), \
+        `region` varchar(255), \
+        `country` varchar(255), \
+        `time` DATETIME DEFAULT CURRENT_TIMESTAMP, \
+        `soundId` INT NOT NULL \
+    */
+
     static addLead(campaignId, lead) {
         return db.query(
             `INSERT INTO leads ${Utils.sqlValues({campaignId, ...lead})};`
@@ -100,6 +115,15 @@ module.exports = class Querier {
             } ORDER BY time LIMIT ${limit};`
         );
     }
+
+    static streamLeadsByCampaign(campaignId) {
+        return db.getConnection()
+            .then(conn => conn.query(
+                `SELECT ip, first, last, email, city, region, country, time \
+                FROM leads ${Utils.where({ campaignId })};`
+            ).stream({ highWaterMark: 5 }))
+    }
+
 
 
 
