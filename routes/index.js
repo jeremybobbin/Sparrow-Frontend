@@ -51,7 +51,10 @@ router.get('/download/:campaignId', (req, res) => {
 
             const json = new JsonStreamStringify(sqlStream);
 
-            const csv = new Json2csvTransform();
+            const fields = ['ip', 'first', 'last', 'email', 'city', 'region', 'country', 'time'];
+            const opts = { fields };
+            
+            const csv = new Json2csvTransform(opts);
 
 
             json.pipe(csv).pipe(res);

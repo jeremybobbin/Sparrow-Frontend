@@ -2,6 +2,7 @@ const router = require('express').Router();
 
 const Campaigns = require('../models/Campaigns');
 const Form = require('../models/Form');
+const Widget = require('../models/Widget')
 
 const { UserRoute } = require('../JerWear');
 
@@ -79,9 +80,14 @@ router.post('/:id', (req, res) => {
 // Route to render widget.
 router.get('/:id/widget', (req, res) => {
     const { id } = req.params;
+    const random = parseFloat(req.query.random);
 
     Widget.getSnippets(id, random)
-        .then(snippets => res.render('widget.pug', snippets))
+        .then(snippets => {
+            if(snippets.leadSnippet)
+                res.render('widget.pug', snippets)
+            else res.sendStatus(200);
+        })
         .catch(err => res.status(500).json({ err }));
 });
 

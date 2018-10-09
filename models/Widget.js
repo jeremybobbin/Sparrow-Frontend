@@ -9,17 +9,18 @@ module.exports = class Widget {
             Querier.getLatestLeads(campaignId, 20),
             Querier.getCampaignMessage(campaignId)
         ])
-        .then(([leads, [{message}]]) => {
-
+	.then(([leads, message]) => {
+            console.log(leads);
+            if(message.length) message = message[0].message || '';
             const { first, last, city, time } = Widget.oneRandom(leads, random);
-            
+
             return {
                 message,
                 leadSnippet: Widget.genMessage(first, last, city),
                 timeSnippet: Widget.genTime(time)
             };
 
-        });
+        }).catch(err => console.log("Error occured while getting widget snippets:", err))
     }
 
     static genMessage(first, last, city) {
@@ -32,35 +33,35 @@ module.exports = class Widget {
         } else {
             name = 'Someone';
         }
-        if(city) {
+	if(city) {
             return name + ' from ' + city;
         }
-        return name + ' from ' + ' somewhere';
+	return name + ' from ' + ' somewhere';
     }
-    
+
     static genTime(time) {
 
         if(!time) return 'Some time ago';
-        const dif = divRound((new Date().getTime() - time), 1000) ;
+        const dif = Widget.divRound((new Date().getTime() - time), 1000) ;
         if (dif < 60) {
-            return timeMsg(dif, 'second');
+            return Widget.timeMsg(dif, 'second');
         }
-        const min = divRound(dif, 60);
+	const min = Widget.divRound(dif, 60);
         if(min < 60) {
-            return timeMsg(min, 'minute');
+            return Widget.timeMsg(min, 'minute');
         }
-        const hour = divRound(min, 60);
+	const hour = Widget.divRound(min, 60);
         if(hour < 24) {
-            return timeMsg(hour, 'hour');
+            return Widget.timeMsg(hour, 'hour');
         }
-        const day = divRound(hour, 24);
-        return timeMsg(day, 'day')
+	const day = Widget.divRound(hour, 24);
+        return Widget.timeMsg(day, 'day')
     }
 
     static timeMsg(count, unit) {
         return count + ' ' + unit + (count > 1 ? 's' : '') + ' ago';
     }
-    
+
     static divRound(top, bot) {
         return Math.round(top / bot);
     }
@@ -69,10 +70,10 @@ module.exports = class Widget {
         if(!random) {
             throw 'Missing random number.';
         }
-        if(random < 0 || random >= 1) {
+	if(random < 0 || random >= 1) {
             throw 'Random number must be less < 1 and >= 0.';
         }
-        const index = Math.floor(random * array.length);
+	const index = Math.floor(random * array.length);
         return array[index];
     }
 }

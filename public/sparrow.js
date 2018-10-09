@@ -9,7 +9,8 @@
             'effect' : 'bounce',
             'track' : 1,
             'widget' : 1,
-            'location': 'bottom-left'
+            'location': 'bottom-left',
+            'campaignId': null
         },
 
         data : {
@@ -30,6 +31,28 @@
         set : function(key, val, target) {
             if (typeof(target) == 'undefined') {target = 'data';}
             sparrow[target][key] = val;
+        },
+
+        scanObj : function()
+        {
+            if (typeof(window['sparrowsObj']) == 'undefined')
+            {
+                return;
+            }
+
+            var ob = window['sparrowsObj'];
+
+            for (i in ob)
+            {
+                sparrow.checkArgs(ob[i]);
+            }
+
+            window['sparrowsObj'].push = function() {
+
+                sparrow.checkArgs(window['sparrowsObj'][window['sparrowsObj'].length - 1]);
+
+                return Array.prototype.push.apply(this, arguments);
+            }
         },
 
         checkArgs : function(args) {
@@ -104,9 +127,11 @@
         },
         
         jqLoad : function() {
+            sparrow.scanObj();
+
             sparrow.config.baseUrl = 'http' + (sparrow.config.https ? 's': '' )+ '://' + sparrow.config.baseUrl + '/';
 
-            $.get(sparrow.config.baseUrl + 'data?url=' + encodeURIComponent(sparrow.config.pageUrl),
+            $.get(sparrow.config.baseUrl + 'campaigns/' + sparrow.config.campaignId,
                 function(data) {
                     if (sparrow.config.track == 1) {
                         if (typeof(data.fields) != null) {
@@ -116,7 +141,7 @@
                         sparrow.bindFields();
                     }
                     //USED TO BE (data.widget == 1 && data.show == 1)
-                    if (data.enabled === 1) {
+                    if (data.isEnabled === 1) {
                         console.log('In here now');
                         sparrow.config['delay'] = data.delay;
                         sparrow.config['effect'] = data.effect;
@@ -254,7 +279,7 @@
             div.id = 'sparrow-widget';
             document.getElementsByTagName('body')[0].appendChild(div);
 
-            var widgetUrl = sparrow.config.baseUrl + 'widget?url=' + encodeURIComponent(sparrow.config.pageUrl) + '&r=' + Math.random();
+            var widgetUrl = sparrow.config.baseUrl + 'campaigns/' + sparrow.config.campaignId + '/widget' + '?random=' + Math.random();
 
             if (sparrow.config.show_counters == 1) {
                 widgetUrl = sparrow.config.baseUrl + 'counters/' + sparrow.data.campaignId + '?ref=' + encodeURIComponent(window.location.href) + '&r=' + Math.random();
